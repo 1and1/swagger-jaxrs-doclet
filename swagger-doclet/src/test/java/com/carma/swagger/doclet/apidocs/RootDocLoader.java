@@ -10,6 +10,9 @@ import com.sun.tools.javadoc.JavadocTool;
 import com.sun.tools.javadoc.Messager;
 import com.sun.tools.javadoc.ModifierFilter;
 
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+
 @SuppressWarnings("javadoc")
 public class RootDocLoader {
 
@@ -25,8 +28,19 @@ public class RootDocLoader {
 		subPackages.append(subpackage);
 
 		final JavadocTool javaDoc = JavadocTool.make0(context);
-		return javaDoc.getRootDocImpl("", null, new ModifierFilter(ModifierFilter.ALL_ACCESS), new ListBuffer<String>().toList(),
-				new ListBuffer<String[]>().toList(), false, subPackages.toList(), new ListBuffer<String>().toList(), false, false, false);
+		return javaDoc.getRootDocImpl(
+			"",
+			null,
+			new ModifierFilter(ModifierFilter.ALL_ACCESS),
+			new ListBuffer<String>().toList(),
+			new ListBuffer<String[]>().toList(),
+			new ListBuffer<JavaFileObject>().toList(),
+			false,
+			subPackages.toList(),
+			new ListBuffer<String>().toList(),
+			false,
+			false,
+			false);
 	}
 
 }
