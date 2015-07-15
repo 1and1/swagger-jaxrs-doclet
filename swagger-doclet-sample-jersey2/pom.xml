@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.carma</groupId>
+		<groupId>com.1and1</groupId>
 		<artifactId>swagger-doclet-parent</artifactId>
 		<version>1.0.5-SNAPSHOT</version>
 	</parent>
@@ -45,6 +45,7 @@
 				<version>2.3</version>
 				<configuration>
 					<createDependencyReducedPom>true</createDependencyReducedPom>
+                                        <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
 					<filters>
 						<filter>
 							<artifact>*:*</artifact>

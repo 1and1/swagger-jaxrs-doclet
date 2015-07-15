@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.carma</groupId>
+	<groupId>com.1and1</groupId>
 	<artifactId>swagger-doclet-parent</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.5-SNAPSHOT</version>
@@ -262,7 +262,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-
+<!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
@@ -278,6 +278,7 @@
 					<scmCommentPrefix>mvn release [ci skip]</scmCommentPrefix>
 				</configuration>
 			</plugin>
+-->
 <!--
      [java] Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 40705
      [java] 	at org.objectweb.asm.ClassReader.readClass(Unknown Source)
@@ -301,6 +302,7 @@
 				</executions>
 			</plugin>
 -->
+<!--
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
@@ -312,7 +314,7 @@
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
-
+-->
 		</plugins>
 	</build>
 </project>

@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.carma</groupId>
-		<artifactId>swagger-doclet-parent</artifactId>
+        <groupId>com.1and1</groupId>
+        <artifactId>swagger-doclet-parent</artifactId>
         <version>1.0.5-SNAPSHOT</version>
     </parent>
 
