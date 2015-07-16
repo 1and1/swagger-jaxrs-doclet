@@ -35,7 +35,7 @@ public class Operation {
 		this.type = emptyToNull(method.getReturnType());
 		this.format = emptyToNull(method.getReturnTypeFormat());
 		if (method.getReturnTypeItemsRef() != null || method.getReturnTypeItemsType() != null) {
-			this.items = new PropertyItems(method.getReturnTypeItemsRef(), method.getReturnTypeItemsType(), method.getReturnTypeItemsFormat());
+			this.items = new PropertyItems(method.getReturnTypeItemsRef(), method.getReturnTypeItemsType(), method.getReturnTypeItemsFormat(), method.getReturnTypeItemsAllowableValues());
 		}
 		this.parameters = method.getParameters().isEmpty() ? null : method.getParameters();
 		this.responseMessages = method.getResponseMessages().isEmpty() ? null : method.getResponseMessages();

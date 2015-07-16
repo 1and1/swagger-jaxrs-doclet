@@ -14,6 +14,7 @@ public class Parameterized<T, R> {
 	private Object object;
 
 	private T typed;
+	private R rtype;
 
 	private Parameterized2<R> parameterizedChild;
 
@@ -38,7 +39,7 @@ public class Parameterized<T, R> {
 	}
 
 	public R getRtype() {
-		return null;
+		return this.rtype;
 	}
 
 	public Parameterized2<R> getParameterizedChild() {

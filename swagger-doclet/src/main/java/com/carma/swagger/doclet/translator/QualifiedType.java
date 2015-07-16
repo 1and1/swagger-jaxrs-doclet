@@ -58,6 +58,7 @@ public class QualifiedType {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((this.qualifier == null) ? 0 : this.qualifier.hashCode());
+		result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
 		result = prime * result + ((this.typeName == null) ? 0 : this.typeName.hashCode());
 		return result;
 	}
@@ -83,6 +84,13 @@ public class QualifiedType {
 				return false;
 			}
 		} else if (!this.qualifier.equals(other.qualifier)) {
+			return false;
+		}
+		if (this.type == null) {
+			if (other.type != null) {
+				return false;
+			}
+		} else if (!this.type.equals(other.type)) {
 			return false;
 		}
 		if (this.typeName == null) {

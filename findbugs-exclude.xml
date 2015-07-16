@@ -1,0 +1,9 @@
+<FindBugsFilter>
+  <!-- exclude tests -->
+  <Match>
+    <Class name="~.*Test$"/>
+  </Match>
+  <Match>
+    <Package name="~fixtures\..*"/>
+  </Match>
+</FindBugsFilter>

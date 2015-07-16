@@ -54,4 +54,14 @@ public class ValueContraintsResource {
 			@DefaultValue("False") @QueryParam("p4") boolean p4) {
 		// noop
 	}
+
+	/**
+	 * @paramsAllowableValues p1 A p2 B p1 C
+	 * @paramsDefaultValue p1 C
+	 */
+	@PUT
+	@Path("/4")
+	public void putEnum(@QueryParam("p1") String p1, @QueryParam("p2") String p2) {
+		// noop
+	}
 }

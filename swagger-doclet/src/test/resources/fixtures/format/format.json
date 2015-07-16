@@ -1,0 +1,53 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/format",
+    "apis": [
+        {
+            "path": "/format",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "postData",
+                    "type": "Data",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string",
+                			"format" : "date"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "string",
+                			"format" : "date-time"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data": {
+            "id": "Data",
+            "properties": {
+            	"formatFieldTag": {
+                	"type": "string",
+                	"format" : "date"
+                },
+                "formatGetterTag": {
+                	"type": "string",
+                	"format" : "date-time"
+                }
+            }
+        }
+    }
+}

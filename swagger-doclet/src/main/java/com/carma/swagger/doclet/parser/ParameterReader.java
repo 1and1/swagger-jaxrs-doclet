@@ -180,6 +180,9 @@ public class ParameterReader {
 		// read csv params
 		List<String> csvParams = ParserHelper.getCsvParams(method, allParamNames, this.options.getCsvParamsTags(), this.options);
 
+		// read formats
+		Map<String, String> paramFormats = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsFormatTags(), this.options);
+
 		// read min and max values of params
 		Map<String, String> paramMinVals = ParserHelper.getParameterValues(method, allParamNames, this.options.getParamsMinValueTags(),
 				this.options.getParamMinValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "min" });
@@ -191,6 +194,10 @@ public class ParameterReader {
 		// read default values of params
 		Map<String, String> paramDefaultVals = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsDefaultValueTags(),
 				this.options);
+
+		// read allowable values of params
+		Map<String, List<String>> paramAllowableVals = ParserHelper.getMethodParamNameValueLists(method, allParamNames,
+				this.options.getParamsAllowableValuesTags(), this.options);
 
 		// read override names of params
 		Map<String, String> paramNames = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsNameTags(), this.options);
@@ -232,9 +239,10 @@ public class ParameterReader {
 						String itemsRef = property.getItems() == null ? null : property.getItems().getRef();
 						String itemsType = property.getItems() == null ? null : property.getItems().getType();
 						String itemsFormat = property.getItems() == null ? null : property.getItems().getFormat();
+						List<String> itemsAllowableValues = property.getItems() == null ? null : property.getItems().getAllowableValues();
 
 						ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
-								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, property.getUniqueItems(),
+								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, itemsAllowableValues, property.getUniqueItems(),
 								property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
 
 						res.add(param);
@@ -255,11 +263,17 @@ public class ParameterReader {
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
 
+		// overide format if possible
+		if (format == null) {
+			format = paramFormats.get(paramName);
+		}
+
 		Boolean allowMultiple = null;
 		List<String> allowableValues = null;
 		String itemsRef = null;
 		String itemsType = null;
 		String itemsFormat = null;
+		List<String> itemsAllowableValues = null;
 		Boolean uniqueItems = null;
 		String minimum = null;
 		String maximum = null;
@@ -278,9 +292,15 @@ public class ParameterReader {
 			}
 
 			// set enum values
+			// a) if param type is enum build based on enum values
 			ClassDoc typeClassDoc = parameter.type().asClassDoc();
 			allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
-			if (allowableValues != null) {
+			if (allowableValues == null) {
+				// b) if the method has a javadoc tag for allowable values use that
+				allowableValues = paramAllowableVals.get(paramName);
+			}
+
+			if (allowableValues != null && !allowableValues.isEmpty()) {
 				typeName = "string";
 			}
 
@@ -341,12 +361,17 @@ public class ParameterReader {
 			// set collection related fields
 			// TODO: consider supporting parameterized collections as api parameters...
 			if (containerOf != null) {
-				OptionalName oName = this.translator.typeName(containerOf);
-				if (ParserHelper.isPrimitive(containerOf, this.options)) {
-					itemsType = oName.value();
-					itemsFormat = oName.getFormat();
+				itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+				if (itemsAllowableValues != null) {
+					itemsType = "string";
 				} else {
-					itemsRef = oName.value();
+					OptionalName oName = this.translator.typeName(containerOf);
+					if (ParserHelper.isPrimitive(containerOf, this.options)) {
+						itemsType = oName.value();
+						itemsFormat = oName.getFormat();
+					} else {
+						itemsRef = oName.value();
+					}
 				}
 			}
 
@@ -368,7 +393,7 @@ public class ParameterReader {
 
 		// build parameter
 		ApiParameter param = new ApiParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
-				itemsFormat, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+				itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 		res.add(param);
 
@@ -388,6 +413,7 @@ public class ParameterReader {
 		String itemsRef = null;
 		String itemsType = null;
 		String itemsFormat = null;
+		List<String> itemsAllowableValues = null;
 		Boolean uniqueItems = null;
 		String minimum = null;
 		String maximum = null;
@@ -409,12 +435,17 @@ public class ParameterReader {
 		// set collection related fields
 		// TODO: consider supporting parameterized collections as api parameters...
 		if (containerOf != null) {
-			OptionalName oName = this.translator.typeName(containerOf);
-			if (ParserHelper.isPrimitive(containerOf, this.options)) {
-				itemsType = oName.value();
-				itemsFormat = oName.getFormat();
+			itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+			if (itemsAllowableValues != null) {
+				itemsType = "string";
 			} else {
-				itemsRef = oName.value();
+				OptionalName oName = this.translator.typeName(containerOf);
+				if (ParserHelper.isPrimitive(containerOf, this.options)) {
+					itemsType = oName.value();
+					itemsFormat = oName.getFormat();
+				} else {
+					itemsRef = oName.value();
+				}
 			}
 		}
 
@@ -437,7 +468,7 @@ public class ParameterReader {
 
 		// build parameter
 		ApiParameter param = new ApiParameter("path", renderedParamName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
-				itemsFormat, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+				itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
 
 		return param;
 

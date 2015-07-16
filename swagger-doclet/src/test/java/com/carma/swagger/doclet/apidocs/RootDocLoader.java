@@ -2,6 +2,8 @@ package com.carma.swagger.doclet.apidocs;
 
 import java.io.IOException;
 
+import javax.tools.JavaFileObject;
+
 import com.sun.javadoc.RootDoc;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.ListBuffer;
@@ -9,9 +11,6 @@ import com.sun.tools.javac.util.Options;
 import com.sun.tools.javadoc.JavadocTool;
 import com.sun.tools.javadoc.Messager;
 import com.sun.tools.javadoc.ModifierFilter;
-
-import javax.tools.JavaFileObject;
-import java.io.IOException;
 
 @SuppressWarnings("javadoc")
 public class RootDocLoader {

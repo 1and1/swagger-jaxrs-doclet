@@ -19,7 +19,7 @@ import com.carma.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.RootDoc;
 
 @SuppressWarnings("javadoc")
-public class Issue81Test {
+public class ModelInheritanceUsingSubTypesTest {
 
 	private Recorder recorderMock;
 	private DocletOptions options;
@@ -30,13 +30,12 @@ public class Issue81Test {
 		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
 	}
 
-	@Test
+        @Test
 	public void testStart() throws IOException {
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.issue81");
+		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.modelinheritanceusingsubtypes");
 		new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		final ApiDeclaration api = loadFixture("/fixtures/issue81/issue81.json", ApiDeclaration.class);
+		final ApiDeclaration api = loadFixture("/fixtures/modelinheritanceusingsubtypes/modelinheritanceusingsubtypes.json", ApiDeclaration.class);
 		verify(this.recorderMock).record(any(File.class), eq(api));
 	}
-
 }

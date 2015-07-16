@@ -1,0 +1,60 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/modelinheritanceusingsubtypes",
+    "apis": [
+        {
+            "path": "/modelinheritanceusingsubtypes",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getSmallestVehicle",
+                    "type": "Vehicle"
+                },
+                {
+                    "method": "GET",
+                    "nickname": "getMotorcycle",
+                    "type": "Motorcycle"
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Vehicle": {
+            "id": "Vehicle",
+            "properties": {
+                "make": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            },
+            "required" : [ "type" ],
+            "subTypes" : [ "Car", "Truck", "Motorcycle" ],
+            "discriminator" : "type"
+        },
+        "Car": {
+            "id": "Car",
+            "properties": {
+            }
+        },
+        "Truck": {
+            "id": "Truck",
+            "properties": {
+                "maxLoad": {
+                    "type": "string"
+                }
+            }
+        },
+        "Motorcycle": {
+            "id": "Motorcycle",
+            "properties": {
+            }
+        }
+    }
+}

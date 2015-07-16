@@ -17,6 +17,7 @@ public class Method {
 	private String returnTypeItemsRef;
 	private String returnTypeItemsType;
 	private String returnTypeItemsFormat;
+    private List<String> returnTypeItemsAllowableValues;
 	private String path;
 
 	private List<String> consumes;
@@ -32,7 +33,7 @@ public class Method {
 
 	public Method(HttpMethod method, String methodName, String path, List<ApiParameter> apiParameters, List<ApiResponseMessage> responseMessages,
 			String summary, String notes, String returnType, String returnTypeFormat, String returnTypeItemsRef, String returnTypeItemsType,
-			String returnTypeItemsFormat, List<String> consumes, List<String> produces, OperationAuthorizations authorizations, boolean deprecated) {
+			String returnTypeItemsFormat, List<String> returnTypeItemsAllowableValues, List<String> consumes, List<String> produces, OperationAuthorizations authorizations, boolean deprecated) {
 		this.method = method;
 		this.methodName = methodName;
 		this.path = ParserHelper.sanitizePath(path);
@@ -45,6 +46,7 @@ public class Method {
 		this.returnTypeItemsRef = returnTypeItemsRef;
 		this.returnTypeItemsType = returnTypeItemsType;
 		this.returnTypeItemsFormat = returnTypeItemsFormat;
+        this.returnTypeItemsAllowableValues = returnTypeItemsAllowableValues;
 		this.consumes = consumes;
 		this.produces = produces;
 		this.authorizations = authorizations;
@@ -126,6 +128,14 @@ public class Method {
 	public String getReturnTypeItemsFormat() {
 		return this.returnTypeItemsFormat;
 	}
+
+	/**
+	 * This gets the returnTypeItemsAllowableValues
+	 * @return the returnTypeItemsAllowableValues
+	 */
+    public List<String> getReturnTypeItemsAllowableValues() {
+        return returnTypeItemsAllowableValues;
+    }
 
 	public boolean isSubResource() {
 		return this.method == null;

@@ -5,7 +5,7 @@
 	<groupId>com.1and1</groupId>
 	<artifactId>swagger-doclet-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<name>Swagger Doclet</name>
 	<url>https://github.com/Carma-Public/swagger-jaxrs-doclet</url>
 	<description>
@@ -100,10 +100,12 @@
 								<goals>
 									<goal>jar</goal>
 								</goals>
+								<configuration>
+                					<additionalparam>-Xdoclint:none</additionalparam>
+            					</configuration>
 							</execution>
 						</executions>
 					</plugin>
-
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
@@ -164,10 +166,11 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>2.5.5</version>
+				<version>3.0.1</version>
 				<configuration>
 					<effort>Max</effort>
 					<xmlOutput>true</xmlOutput>
+					<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
 				</configuration>
 				<executions>
 					<execution>

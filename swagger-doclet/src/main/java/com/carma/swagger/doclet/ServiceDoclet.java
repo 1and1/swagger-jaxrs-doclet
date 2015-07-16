@@ -42,8 +42,7 @@ public class ServiceDoclet {
 	/**
 	 * Check for doclet-added options. Returns the number of
 	 * arguments you must specify on the command line for the
-	 * given option. For example, "-d docs" would return 2.
-	 * <p/>
+	 * given option. For example, "-d docs" would return 2. <br>
 	 * This method is required if the doclet contains any options. If this method is missing, Javadoc will print an invalid flag error for every option.
 	 * @param option The option to check
 	 * @return number of arguments on the command line for an option
@@ -80,15 +79,18 @@ public class ServiceDoclet {
 		options.put("-operationNotesTags", 2);
 		options.put("-operationSummaryTags", 2);
 		options.put("-fieldDescriptionTags", 2);
+		options.put("-fieldFormatTags", 2);
 		options.put("-fieldMinTags", 2);
 		options.put("-fieldMaxTags", 2);
 		options.put("-fieldDefaultTags", 2);
 
 		options.put("-requiredParamsTags", 2);
 		options.put("-optionalParamsTags", 2);
+		options.put("-paramsFormatTags", 2);
 		options.put("-paramsMinValueTags", 2);
 		options.put("-paramsMaxValueTags", 2);
 		options.put("-paramsDefaultValueTags", 2);
+		options.put("-paramsAllowableValuesTags", 2);
 		options.put("-paramsNameTags", 2);
 		options.put("-parameterNameAnnotations", 2);
 
@@ -184,8 +186,7 @@ public class ServiceDoclet {
 
 	/**
 	 * Return the version of the Java Programming Language supported
-	 * by this doclet.
-	 * <p/>
+	 * by this doclet. <br>
 	 * This method is required by any doclet supporting a language version newer than 1.1.
 	 * @return the language version supported by this doclet.
 	 * @since 1.5

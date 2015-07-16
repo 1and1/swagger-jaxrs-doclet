@@ -19,7 +19,37 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 ## Versions
 
-The latest production version is 1.0.4.2
+1.1.x Versions and higher require Java 8
+
+1.0.x Versions require Java 6/7
+
+The latest production version is 1.1.0.
+
+This contains the following fixes/features:
+
++ Support Java 8 (Issue 83)
++ Upgrade swagger UI to 2.1.0; fixes: 
+	+ Api ordering in the embedded UI (Issue 70) 
+	+ Success code not being displayed (Issue 77)
++ Adding support for arrays of enums -courtesy of @tandrup (Issue 93) 
+
+
+The fixes in the 1.0.5 version were as follows:
+
++ Added better support for subTypes - courtesy of @mhardorf (Issue 86)
++ Class PathParam Variables Not Being Added as Required Parameters to JSON Output - big help from @nkoterba (Issue 74)
++ Add support for data type format (Issue 84)
++ Support not including private model fields by default via -defaultModelFieldsXmlAccessType flag (Issue 85) 
++ Support BigDecimal and BigInteger (Issue 87)
++ Support allowable values javadoc tag (Issue 89)
++ Update Documentation for Gradle Users in Resolving Models - courtesy of @nkoterba (Issue 82)
++ Type identification does not work properly when mixing array types / regular types (Issue 81)
++ Provide includeResourcePrefixes Configuration Option (Issue 80)
++ @responseType doesn't support primitives (Issue 76)
++ Issue Creating Paths with Regex Expressions - big help from @nkoterba (Issue 73)
++ Model generation does not work properly for collections in some cases (Issue 72)
++ Support for array types (Issue 71)
++ @responseType ignored where method signature specifies generic return type (Issue 69)
 
 1.0.4.2 is a patch release of the 1.0.4 version to fix two additional bugs in the 1.0.4 release:
 
@@ -75,7 +105,7 @@ The fixes/features in the 1.0.1 version were as follows:
 + Support relative basePath w/ port (issue 20)
 + @XmlTransient or @JsonIgnore on setters can lead to invalid model fields (portion of issue 17)
 
-The latest snapshot version is 1.0.5-SNAPSHOT.
+The latest snapshot version is 1.1.1-SNAPSHOT.
 
 ## Usage
 
@@ -113,7 +143,7 @@ To use the Swagger Doclet in your Maven project, add the following to your POM f
                             <docletArtifact>
                                 <groupId>com.carma</groupId>
 								<artifactId>swagger-doclet</artifactId>
-        						<version>1.0.4.2</version>
+        						<version>1.0.5</version>
         					</docletArtifact>
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -150,7 +180,7 @@ Here is an example build.gradle file that will generate the swagger JSON files i
 
 dependencies {
     doclet(
-        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.4.2'],
+        [group: 'com.carma', name: 'swagger-doclet', version: '1.0.5'],
         [group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0']
     ) 
 }
@@ -166,6 +196,64 @@ dependencies {
    options.addStringOption("apiBasePath", "/sps")
    options.addBooleanOption("skipUiFiles", true)
 }
+```
+
+#### Including Model Classes from outside the doclet project
+Thanks to @nkoterba for these gradle instructions described in issue 82.
+There are two solutions:
+
+**Solution 1**
+For those **not** using Intelli-J, you can just define a sourceset that points to the source of your current project where the Doclet plugin is run + any Model projects:
+
+```
+sourceSets {
+    doclet {
+        java {
+            srcDir 'src/main/java'
+            // List all the source project directories where we define
+            // Models that will be used by Doclet to generate REST API Docs
+            srcDir project(":code:models:api").file("src/main/java")
+        }
+    }
+}
+```
+
+Then update your task that generates the REST API Docs from:
+```
+source = sourceSets.main.allJava
+```
+
+to:
+```
+source = sourceSets.doclet.allJava
+```
+
+**Solution 2**
+Unfortunately, if you are using Intelli-J, it's Gradle Sync/Plugin will complain if you define a SourceSet with sources outside of your project. See: https://youtrack.jetbrains.com/issue/IDEA-122577#tab=Comments
+
+So instead, you have to "manually" build your source set:
+
+```
+task generateRestApiDocs(type: Javadoc) {
+    // Ideally would use a custom-defined source set above
+    // However, Intelli-J can't handle Sources out of content root
+    // See: https://youtrack.jetbrains.com/issue/IDEA-122577#tab=Comments
+    // and: https://github.com/spockframework/spock/issues/70
+    // So instead "manually" creating the source set
+
+    def sourceList = new ArrayList<File>()
+
+    sourceList.addAll(sourceSets.main.allJava);
+    project(":code:models:api").fileTree("src/main/java").each {
+        sourceList.add(it)
+    }
+
+    source = sourceList
+    options.classpath = configurations.doclet.files.asType(List)
+    options.docletpath = configurations.doclet.files.asType(List)
+
+   // ... Rest of doclet setup/configuration here
+   
 ```
 
 ### Usage Notes
@@ -267,6 +355,8 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@summary</td><td>This is used for the summary of the operation. If you do not use this then the summary will be taken from the first sentences of the javadoc.</td><td>operations</td><td>@endpointName</td></tr>
 	
+	<tr><td>@format</td><td>Defines the format for a model field. Note that this is only used for types that do not already map to a predefined format; which primarily means string type.</td><td>model fields and methods</td><td></td></tr>
+	
 	<tr><td>@min</td><td>Defines a minimum value for a model field.</td><td>model fields and methods</td><td>@minimum</td></tr>
 	<tr><td>@max</td><td>Defines a maximum value for a model field.</td><td>model fields and methods</td><td>@maximum</td></tr>
 	
@@ -282,11 +372,15 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@csvParams</td><td>Defines a csv of operation parameter names that use CSV values. For swagger 1.2 this results in the allowMultiple field being set to true, however the Swagger UI does not support this at present. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td></td></tr>
 	
+	<tr><td>@paramsFormat</td><td>Defines the format for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1Format param2Name param2Format. Note that this is only used for types that do not already map to a predefined format; which primarily means string type. NOTE2: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@formats</td></tr>
+	
 	<tr><td>@paramsMinValue</td><td>Defines the minimum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MinValue param2Name param2MinValue. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@paramsMinimumValue, @minValues</td></tr>
 	
 	<tr><td>@paramsMaxValue</td><td>Defines the maximum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MaxValue param2Name param2MaxValue. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@paramsMaximumValue, @maxValues</td></tr>
 	
 	<tr><td>@paramsDefaultValue</td><td>Defines the default value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1DefaultValue param2Name param2DefaultValue. This doclet also supports reading default values from the JAXRS DefaultValue annotation which takes precedence over this for a given parameter. For enums a default value must be one of the enum values, for numeric types if there is a minimum value then a default value must be >= to it, similarly if there is a maximum value then a default value must be <= to it. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@defaultValues</td></tr>
+	
+	<tr><td>@paramsAllowableValues</td><td>Defines the allowable values for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1AllowableValue1 param1Name param1AllowableValue2 param2Name param2AllowableValue1 etc. A default value must be one of these allowable values. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@allowableValues</td></tr>
 	
 	<tr><td>@paramsNameValue</td><td>Defines custom names for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1CustomName param2Name param2CustomName. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@overrideParamsName</td></tr>
 	
@@ -294,7 +388,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file.</td><td>operations, resource classes</td><td></td></tr>
 	
-	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing e.g. the service.json file. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file.</td><td>operations, resource classes</td><td>@resourceOrder</td></tr>
+	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing e.g. the service.json file. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file. NOTE this will only take effect if the swagger ui apisSorter option is "none" in the index.html of the swagger ui, this is NOT the case in the embedded swagger ui.</td><td>operations, resource classes</td><td>@resourceOrder</td></tr>
 	
 	<tr><td>@unauthorized</td><td>Indicates a method does NOT require authentication, in this case an empty authorizations field will be added to the operation json e.g. authorizations": { } The swagger 1.2 spec indicates this overrides authentication at the api level however in practice it appears that not adding this vs adding empty authorizations has the same effect in Swagger UI.</td><td>operations</td><td>@noAuth</td></tr>
 	<tr><td>@scope</td><td>Indicates this method requires authorization and in particular the calling user must have this scope. Multiple scopes can be added using multiple tags. The scopes defined on the operation level must be one of the scopes in the Authorizations section of the service.json</td><td>operations</td><td>@oauth2Scope</td></tr>
@@ -313,8 +407,8 @@ These are the options that you will always want to set
 <table>
 	<tr><th>Option</th><th>Purpose</th></tr>
 	<tr><td>-docBasePath</td><td><p>The base path to the docs in the service.json. You should set to the url of the dir where the swagger json files are hosted e.g. for Carma we use -docBasePath https://api-dev.car.ma/apidoc/ref. If you dont want to build different json files for each server environment one solution which we use at Carma is to use a variable reference for the docBasePath and then serve the json file(s) through a servlet filter which can replace the variable with the hostname of the server it is running on. Alternatively you can use a relative path use the workaround described below (this is technically against the swagger 1.2 spec).</p><p>NOTE: Do not end this with a forward slash.</p>
-	<p>NOTE 2: Technically as per the swagger 1.2 spec the doc base path which is in the resource listing file is NOT required, however, if it is not specified the swagger ui will only work if the resource listing file is in one directory and the url in the index.html points to this and the other resource json files are relative to this. This doclet generates the resource listing as a file called service.json and the resource json files are generated in the same directoy. You can of course name the files and move them to a structure similar to the swagger petstore example where the resource listing is in at the path /api-docs and the resources are under this such as /api-docs/Users.json or you can use web server rewrites to simulate this structure.</p>
-	<p>NOTE 3: If you want to use a relative docBasePath then you will need to patch the swagger.js file of the swagger ui to support this. This is because according to the 1.2 spec the docBasePath is supposed to be absolute. <b>The swagger.js which is bundled with the doclet has this patch.</b></p>
+	<p>NOTE 2: Technically as per the swagger 1.2 spec the doc base path which is in the resource listing file is NOT required, however, if it is not specified the swagger ui will only work if the resource listing file is in one directory and the url in the index.html points to this and the other resource json files are relative to this. This doclet generates the resource listing as a file called service.json and the resource json files are generated in the same directory. You can of course name the files and move them to a structure similar to the swagger petstore example where the resource listing is in at the path /api-docs and the resources are under this such as /api-docs/Users.json or you can use web server rewrites to simulate this structure.</p>
+	<p>NOTE 3: For versions of the swagger ui prior to 2.1.0 If you want to use a relative docBasePath then you will need to patch the swagger.js file of the swagger ui to support this. This is because according to the 1.2 spec the docBasePath is supposed to be absolute and earlier versions of the swagger ui did not handle this.</p>
 	<p>The patch to apply for relative doc base url is as follows:
 <pre>
 <code>
@@ -358,7 +452,7 @@ if (response.basePath)
 </p>
 </td></tr>
 	<tr><td>-apiBasePath</td><td><p>The base path to make api calls via Swagger UI, For each API operation the url to that operation is the apiBasePath + the operation Api path. This can be relative if the swagger json files are on the same host as your API. For Carma we use -apiBasePath /carmaapi</p>
-	<p>Note: if both the docBasePath and apiBasePath are relative then you will need to patch the swagger.js file of the swagger ui to support this. This is because according to the 1.2 spec the docBasePath is supposed to be absolute. See the docBasePath description above for details of this patch.</p>
+	<p>Note: if both the docBasePath and apiBasePath are relative then for versions of the Swagger UI prior to 2.1.0 you will need to patch the swagger.js file of the swagger ui to support this. This is because according to the 1.2 spec the docBasePath is supposed to be absolute. See the docBasePath description above for details of this patch.</p>
 	</td></tr>
 	<tr><td>-apiVersion</td><td>The version of your API used in the service.json and your various API json files.</td></tr>
 </table>
@@ -545,11 +639,11 @@ Then the variable ${userFieldNamesDesc} would be replaced by the value from the 
 	
 	<tr><td>-resourcePath</td><td>This lets you customize the resource path used for resource classes that have root paths e.g. @Path("/") or @Path(""). By default the resource path used for these will be /root but you can use this or the @resourcePath javadoc tag to customize this.</td></tr>
 	
-	<tr><td>-disableSortApisByPath</td><td>This is whether to disable sorting of apis inside a resource by their path. If not set then they will be ordered by their path. If set then they will be in the order encountered by the parser.</td></tr>
+	<tr><td>-disableSortApisByPath</td><td>This is whether to disable sorting of apis inside a resource by their path. If not set then they will be ordered by their path. If set then they will be in the order encountered by the parser. NOTE this will only take effect if the swagger ui apisSorter option is "none" in the index.html of the swagger ui, this is NOT the case in the embedded swagger ui.</td></tr>
 	
-	<tr><td>-sortResourcesByPriority</td><td>This is whether the resources in the resource listing e.g. service.json are ordered by their priority as defined by the @resourcePriority tags. Resources without a priorty tag are placed at the bottom. This takes precedence over -sortResourcesByPath. If neither this nor the -sortResourcesByPath options are set then they will be listed in the order encountered by the parser.</td></tr>
+	<tr><td>-sortResourcesByPriority</td><td>This is whether the resources in the resource listing e.g. service.json are ordered by their priority as defined by the @resourcePriority tags. Resources without a priorty tag are placed at the bottom. This takes precedence over -sortResourcesByPath. If neither this nor the -sortResourcesByPath options are set then they will be listed in the order encountered by the parser. NOTE this will only take effect if the swagger ui apisSorter option is "none" in the index.html of the swagger ui, this is NOT the case in the embedded swagger ui.</td></tr>
 	
-	<tr><td>-sortResourcesByPath</td><td>This is whether the resources in the resource listing e.g. service.json are ordered by their path. If neither this nor the -sortResourcesByPriority options are set then they will be listed in the order encountered by the parser.</td></tr>
+	<tr><td>-sortResourcesByPath</td><td>This is whether the resources in the resource listing e.g. service.json are ordered by their path. If neither this nor the -sortResourcesByPriority options are set then they will be listed in the order encountered by the parser. NOTE this will only take effect if the swagger ui apisSorter option is "none" in the index.html of the swagger ui, this is NOT the case in the embedded swagger ui.</td></tr>
 	
 	<tr><td>-disableDeprecatedResourceClassExclusion</td><td>By default resource classes which have either the @deprecated tag or @Deprecated annotation are excluded from the generated documentation. If this flag is set they will be included.</td></tr>
 	
@@ -630,6 +724,8 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-fieldDescriptionTags</td><td>This adds additional tags to the list of javadoc tags used for setting the description of model field/methods. The default list contains description, comment, return. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
+	<tr><td>-fieldFormatTags</td><td>This adds additional tags to the list of javadoc tags used for setting the format of a model field. The default list contains format. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
 	<tr><td>-fieldMinTags</td><td>This adds additional tags to the list of javadoc tags used for setting the min value of a model field. The default list contains min, minimum. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-fieldMaxTags</td><td>This adds additional tags to the list of javadoc tags used for setting the max value of a model field. The default list contains max, maximum. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
@@ -652,9 +748,15 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-csvParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are csv/multi valued. The default list contains csvParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
+	<tr><td>-paramsFormatTags</td><td>This adds additional tags to the list of javadoc tags used for setting formats for operation parameters. The default list contains paramsFormat, formats. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
 	<tr><td>-paramsMinValueTags</td><td>This adds additional tags to the list of javadoc tags used for setting minimum values for operation parameters. The default list contains paramsMinValue, paramsMinimumValue, minValues. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-paramsMaxValueTags</td><td>This adds additional tags to the list of javadoc tags used for setting maximum values for operation parameters. The default list contains paramsMaxValue, paramsMaximumValue, maxValues. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-paramsDefaultValueTags</td><td>This adds additional tags to the list of javadoc tags used for setting default values for operation parameters. The default list contains paramsDefaultValue, defaultValues. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-paramsAllowableValuesTags</td><td>This adds additional tags to the list of javadoc tags used for setting allowable values for operation parameters. The default list contains paramsAllowableValues, allowableValues. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-requiredFieldTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether model fields are required. The default list contains required and requiredField. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	

@@ -1,0 +1,83 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/listofenums",
+    "apis": [
+        {
+            "path": "/listofenums/animals",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getAnimals",
+                    "type": "Animal",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "color",
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "BLACK",
+                                    "WHITE",
+                                    "RED",
+                                    "GREEN",
+                                    "BLUE"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/listofenums/colors",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getAnimalColors",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "BLACK",
+                            "WHITE",
+                            "RED",
+                            "GREEN",
+                            "BLUE"
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Animal": {
+            "id": "Animal",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "colors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "BLACK",
+                            "WHITE",
+                            "RED",
+                            "GREEN",
+                            "BLUE"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

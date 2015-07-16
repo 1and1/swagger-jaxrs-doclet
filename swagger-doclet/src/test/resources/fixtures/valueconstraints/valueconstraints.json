@@ -118,12 +118,65 @@
                     ]
                 }
             ]
+        },
+        {
+            "path": "/valueconstraints/4",
+            "operations": [
+                {
+                    "method": "PUT",
+                    "nickname": "putEnum",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string",
+                			"defaultValue" : "C",
+                			"enum": [
+						        "A",
+						        "C"
+						    ]
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "string",
+                			"enum": [
+						        "B"
+						    ]
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "models": {
         "Data": {
             "id": "Data",
             "properties": {
+            	"value": {
+                    "type": "string",
+                    "enum": [
+						        "VALUE1",
+						        "VALUE2"
+						    ]
+                },
+                "minFieldTag": {
+                	"type": "integer",
+                	"format" : "int32",
+                	"minimum": 1
+                },
+                "maxFieldTag": {
+                	"type": "integer",
+                	"format" : "int32",
+                	"maximum": 10
+                },
+                "minMaxFieldTag": {
+                	"type": "integer",
+                	"format" : "int32",
+                	"minimum": 2,
+                	"maximum": 8
+                },
                 "minGetterTag": {
                 	"type": "integer",
                 	"format" : "int32",
@@ -136,19 +189,6 @@
                 	"maximum": 10,
                 	"defaultValue" : 5
                 },
-                "value": {
-                    "type": "string",
-                    "enum": [
-						        "VALUE1",
-						        "VALUE2"
-						    ]
-                },
-                "minMaxFieldTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 2,
-                	"maximum": 8
-                },
                 "minMaxGetterTag": {
                 	"type": "integer",
                 	"format" : "int32",
@@ -156,23 +196,13 @@
                 	"maximum": 8,
                 	"defaultValue" : 2
                 },
-                "maxFieldTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"maximum": 10
-                },
-                "minFieldTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 1
+                "trueFieldTag" : {
+                    "type": "boolean",
+                    "defaultValue" : true
                 },
                 "falseFieldTag" : {
                     "type": "boolean",
                     "defaultValue" : false
-                },
-                "trueFieldTag" : {
-                    "type": "boolean",
-                    "defaultValue" : true
                 }
             }
         }

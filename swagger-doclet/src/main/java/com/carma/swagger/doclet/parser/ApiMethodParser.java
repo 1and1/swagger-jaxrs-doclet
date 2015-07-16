@@ -164,6 +164,7 @@ public class ApiMethodParser {
 		String returnTypeItemsRef = null;
 		String returnTypeItemsType = null;
 		String returnTypeItemsFormat = null;
+        List<String> returnTypeItemsAllowableValues = null;
 		Type containerOf = ParserHelper.getContainerType(returnType, null, this.allClasses);
 
 		Map<String, Type> varsToTypes = new HashMap<String, Type>();
@@ -197,15 +198,19 @@ public class ApiMethodParser {
 			returnTypeName = "array";
 			// its a collection, add the container of type to the model
 			modelType = containerOf;
-			// set the items type or ref
-			if (ParserHelper.isPrimitive(containerOf, this.options)) {
-				OptionalName oName = this.translator.typeName(containerOf);
-				returnTypeItemsType = oName.value();
-				returnTypeItemsFormat = oName.getFormat();
-			} else {
-				returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
-			}
-
+            returnTypeItemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+            if (returnTypeItemsAllowableValues != null) {
+                returnTypeItemsType = "string";
+            } else {
+				// set the items type or ref
+				if (ParserHelper.isPrimitive(containerOf, this.options)) {
+					OptionalName oName = this.translator.typeName(containerOf);
+					returnTypeItemsType = oName.value();
+					returnTypeItemsFormat = oName.getFormat();
+				} else {
+					returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
+				}
+            }
 		} else {
 			// if its not a container then adjust the return type name for any views
 			returnTypeOName = this.translator.typeName(returnType, viewClasses);
@@ -258,7 +263,7 @@ public class ApiMethodParser {
 
 		// final result!
 		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, responseMessages, summary, notes, returnTypeName, returnTypeFormat,
-				returnTypeItemsRef, returnTypeItemsType, returnTypeItemsFormat, consumes, produces, authorizations, deprecated);
+				returnTypeItemsRef, returnTypeItemsType, returnTypeItemsFormat, returnTypeItemsAllowableValues, consumes, produces, authorizations, deprecated);
 	}
 
 	private OperationAuthorizations generateAuthorizations() {
@@ -390,7 +395,7 @@ public class ApiMethodParser {
 					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
 
 						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
-							return Integer.valueOf(o1.getCode()).compareTo(Integer.valueOf(o2.getCode()));
+							return Integer.compare(o1.getCode(), o2.getCode());
 						}
 					});
 					break;
@@ -398,7 +403,7 @@ public class ApiMethodParser {
 					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
 
 						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
-							return Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode()));
+							return Integer.compare(o2.getCode(), o1.getCode());
 						}
 					});
 					break;

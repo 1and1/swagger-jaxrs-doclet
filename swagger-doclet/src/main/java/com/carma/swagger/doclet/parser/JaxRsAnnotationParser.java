@@ -39,7 +39,7 @@ public class JaxRsAnnotationParser {
 	// diffs between 1.1 and 1.2 see https://github.com/wordnik/swagger-spec/wiki/1.2-transition
 	private static final String SWAGGER_VERSION = "1.2";
 
-	private static final String SWAGGER_UI_VERSION = "2.1.8-M1";
+	private static final String SWAGGER_UI_VERSION = "2.1.0";
 
 	private final DocletOptions options;
 	private final RootDoc rootDoc;
@@ -190,7 +190,7 @@ public class JaxRsAnnotationParser {
 				Collections.sort(declarations, new Comparator<ApiDeclaration>() {
 
 					public int compare(ApiDeclaration dec1, ApiDeclaration dec2) {
-						return Integer.valueOf(dec1.getPriority()).compareTo(dec2.getPriority());
+						return Integer.compare(dec1.getPriority(), dec2.getPriority());
 					}
 
 				});
@@ -345,8 +345,10 @@ public class JaxRsAnnotationParser {
 			}
 
 			String[] children = sourceLocation.list();
-			for (String element : children) {
-				copyDirectory(recorder, uiPathFile, new File(sourceLocation, element), new File(targetLocation, element));
+			if (children != null) {
+				for (String element : children) {
+					copyDirectory(recorder, uiPathFile, new File(sourceLocation, element), new File(targetLocation, element));
+				}
 			}
 		} else {
 

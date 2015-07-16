@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.1and1</groupId>
         <artifactId>swagger-doclet-parent</artifactId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>swagger-doclet-sample-dropwizard</artifactId>
@@ -83,14 +83,17 @@
                             <reportOutputDirectory>${project.build.outputDirectory}</reportOutputDirectory>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                             <!-- Example using absolute paths
-                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath http://127.0.0.1:7070 -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.8-M1</additionalparam>
+                            <additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath http://127.0.0.1:7070 -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.0</additionalparam>
                         	 -->
                         	<!--  Example using relative api base
-                        	<additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.8-M1</additionalparam>
+                        	<additionalparam>-apiVersion 1 -docBasePath http://127.0.0.1:7070/apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.0</additionalparam>
                         	 -->
-                        	<!-- Example using relative paths for both -->
-                            <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.8-M1</additionalparam>
+                        	<!-- Example using relative paths for both with embedded ui -->
+                            <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath /</additionalparam>
                             
+                            <!-- Example using relative paths for both
+                            <additionalparam>-apiVersion 1 -docBasePath /apidocs -apiBasePath / -swaggerUiPath ../../../src/main/resources/swagger-ui-2.1.0</additionalparam>
+                             -->
                         </configuration>
                         <goals>
                             <goal>javadoc</goal>

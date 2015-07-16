@@ -38,6 +38,11 @@
                     "type": "AggregationGroupExtractor"
                 }
             }
+        },
+        "MeasurementsResult": {
+            "id": "MeasurementsResult",
+            "properties": {
+            }
         }
     }
 }
