@@ -133,7 +133,7 @@
 					<goals>deploy nexus-staging:release</goals>
 -->
 					<scmCommentPrefix>mvn release [ci skip]</scmCommentPrefix>
-                                        <stagingRepository>${distribution.repo.staging}</stagingRepository>
+                                        <stagingRepository>1and1-mam-staging-repository::default::${distribution.repo.staging}</stagingRepository>
 				</configuration>
 			</plugin>
 <!--
