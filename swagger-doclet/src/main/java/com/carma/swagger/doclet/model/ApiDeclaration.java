@@ -25,6 +25,18 @@ public class ApiDeclaration {
 	private ApiDeclaration() {
 	}
 
+	private ApiDeclaration(ApiDeclaration other) {
+		this.apiVersion = other.apiVersion;
+		this.swaggerVersion = other.swaggerVersion;
+		this.basePath = other.basePath;
+		this.resourcePath = other.resourcePath;
+		this.apis = other.apis;
+		this.models = other.models;
+
+		this.priority = other.priority;
+		this.description = other.description;
+	}
+
 	public ApiDeclaration(String swaggerVersion, String apiVersion, String basePath, String resourcePath, List<Api> apis, Map<String, Model> models,
 			int priority, String description) {
 		this.swaggerVersion = swaggerVersion;
@@ -75,6 +87,12 @@ public class ApiDeclaration {
 	 */
 	public void setApis(List<Api> apis) {
 		this.apis = apis;
+	}
+
+	public ApiDeclaration apis(List<Api> apis) {
+		ApiDeclaration clone = new ApiDeclaration(this);
+		clone.apis = apis;
+		return clone;
 	}
 
 	/**

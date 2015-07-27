@@ -43,4 +43,20 @@ public class MultipleParamsTest {
 		verify(this.recorderMock).record(any(File.class), eq(api));
 	}
 
+	@Test
+	public void testAdditionalHeaderParams() throws IOException {
+		this.options.getAdditionalHeaderParams().add("x-whatever");
+		this.options.getAdditionalHeaderParams().add("X-UI-APP=client/1.2.3");
+
+		this.options.setExcludeDeprecatedOperations(true);
+		this.options.setExcludeDeprecatedParams(true);
+		this.options.setExcludeDeprecatedFields(true);
+
+		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.multipleparams");
+		new JaxRsAnnotationParser(this.options, rootDoc).run();
+
+		final ApiDeclaration api = loadFixture("/fixtures/multipleparams/addedmultipleparams.json", ApiDeclaration.class);
+		verify(this.recorderMock).record(any(File.class), eq(api));
+	}
+
 }

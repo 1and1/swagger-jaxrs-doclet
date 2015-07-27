@@ -23,7 +23,9 @@ import com.carma.swagger.doclet.Recorder;
 import com.carma.swagger.doclet.ServiceDoclet;
 import com.carma.swagger.doclet.model.Api;
 import com.carma.swagger.doclet.model.ApiDeclaration;
+import com.carma.swagger.doclet.model.ApiParameter;
 import com.carma.swagger.doclet.model.HttpMethod;
+import com.carma.swagger.doclet.model.Operation;
 import com.carma.swagger.doclet.model.ResourceListing;
 import com.carma.swagger.doclet.model.ResourceListingAPI;
 import com.google.common.base.Strings;
@@ -174,7 +176,12 @@ public class JaxRsAnnotationParser {
 			}
 
 			// merge the api declarations
-			declarationColl = new ApiDeclarationMerger(SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath()).merge(declarationColl);
+			declarationColl = new ApiDeclarationMerger( //
+					SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath()) //
+					.merge(declarationColl);
+
+			// add extensions from commandline
+			declarationColl = extendApiDeclarations(this.options, declarationColl);
 
 			// clear any empty models
 			for (ApiDeclaration api : declarationColl) {
@@ -240,6 +247,35 @@ public class JaxRsAnnotationParser {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	private Collection<ApiDeclaration> extendApiDeclarations(DocletOptions options, Collection<ApiDeclaration> declarationColl) {
+		if (options.getAdditionalHeaderParams().isEmpty()) {
+			return declarationColl;
+		}
+
+		Collection<ApiDeclaration> apidecls = new ArrayList<>();
+		for (ApiDeclaration apidecl : declarationColl) {
+			List<Api> apis = new ArrayList<>();
+			for (Api api : apidecl.getApis()) {
+				List<Operation> ops = new ArrayList<>();
+				for (Operation op : api.getOperations()) {
+					List<ApiParameter> params = new ArrayList<>();
+					for (String additionalHeaderParam : options.getAdditionalHeaderParams()) {
+						int idx = additionalHeaderParam.indexOf("=");
+						String paramName = idx >= 0 ? additionalHeaderParam.substring(0, idx) : additionalHeaderParam;
+						String paramDefaultVal = idx >= 0 ? additionalHeaderParam.substring(idx+1) : null;
+						params.add(new ApiParameter(
+ 								"header", paramName, false, null, "string", null, null, null, null, null, null, null, null, null, null, paramDefaultVal));
+					}
+					params.addAll(nullToEmpty(op.getParameters()));
+					ops.add(op.parameters(params));
+				}
+				apis.add(api.operations(ops));
+			}
+			apidecls.add(apidecl.apis(apis));
+		}
+		return apidecls;
 	}
 
 	private void writeApis(Collection<ApiDeclaration> apis) throws IOException {
@@ -377,4 +413,7 @@ public class JaxRsAnnotationParser {
 		}
 	}
 
+	private static <T> Collection<T> nullToEmpty(Collection<T> c) {
+		return c != null ? c : Collections.<T>emptyList();
+	}
 }

@@ -171,6 +171,8 @@ public class ServiceDoclet {
 		options.put("-sortResourcesByPriority", 1);
 		options.put("-sortApisByPath", 1);
 
+		options.put("-additionalHeaderParam", 2);
+
 		// standard doclet options that we don't use but have here to avoid errors with tools like gradle
 		// that auto pass them in
 		options.put("-doctitle", 2);

@@ -311,6 +311,9 @@ public class DocletOptions {
 			} else if (option[0].equals("-operationScopeTags")) {
 				addTagsOption(parsedOptions.operationScopeTags, option);
 
+			} else if (option[0].equals("-additionalHeaderParam")) {
+				parsedOptions.additionalHeaderParams.add(option[1]);
+
 			} else if (option[0].equals("-serializationFeatures")) {
 				serializationFeaturesCsv = option[1];
 			} else if (option[0].equals("-deserializationFeatures")) {
@@ -419,6 +422,8 @@ public class DocletOptions {
 
 	private List<String> stringTypePrefixes; // list of type prefixes that are mapped to string data type, can be used for example to map header types to
 												// strings
+
+	private List<String> additionalHeaderParams; // additional (optional) HeaderParams which are added to all Operations (e.g. when using ServletFilters)
 
 	private boolean excludeDeprecatedResourceClasses = true;
 	private boolean excludeDeprecatedModelClasses = true;
@@ -692,6 +697,8 @@ public class DocletOptions {
 
 		this.resourceDescriptionTags = new ArrayList<String>();
 		this.resourceDescriptionTags.add("resourceDescription");
+
+		this.additionalHeaderParams = new ArrayList<String>();
 
 		this.responseMessageSortMode = ResponseMessageSortMode.CODE_ASC;
 
@@ -1337,6 +1344,13 @@ public class DocletOptions {
 	 */
 	public List<String> getAuthOperationScopes() {
 		return this.authOperationScopes;
+	}
+
+	/**
+	 * @return additional (optional) HeaderParams which are added to all Operations (e.g. when using ServletFilters)
+	 */
+	public List<String> getAdditionalHeaderParams() {
+		return additionalHeaderParams;
 	}
 
 	public Recorder getRecorder() {

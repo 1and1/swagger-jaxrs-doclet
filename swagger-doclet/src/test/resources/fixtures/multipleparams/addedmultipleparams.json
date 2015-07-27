@@ -1,0 +1,185 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/multipleparams",
+    "apis": [
+        {
+            "path": "/multipleparams",
+            "description" : "parms",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getParams1",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "header",
+                            "name": "x-whatever",
+                            "type": "string",
+                            "required" : "false"
+                        },
+                        {
+                            "paramType": "header",
+                            "name": "X-UI-APP",
+                            "type": "string",
+                            "required" : "false",
+                            "defaultValue" : "client/1.2.3"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string",
+                            "allowMultiple" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "string"
+                        }
+                    ]
+                },
+                {
+                    "method": "PUT",
+                    "nickname": "putParams2",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "header",
+                            "name": "x-whatever",
+                            "type": "string",
+                            "required" : "false"
+                        },
+                        {
+                            "paramType": "header",
+                            "name": "X-UI-APP",
+                            "type": "string",
+                            "required" : "false",
+                            "defaultValue" : "client/1.2.3"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string",
+                            "allowMultiple" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "string",
+                            "allowMultiple" : true
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required": true
+                        }
+                        
+                    ]
+                },
+                {
+                    "method": "POST",
+                    "nickname": "postParams3",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "header",
+                            "name": "x-whatever",
+                            "type": "string",
+                            "required" : "false"
+                        },
+                        {
+                            "paramType": "header",
+                            "name": "X-UI-APP",
+                            "type": "string",
+                            "required" : "false",
+                            "defaultValue" : "client/1.2.3"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "header",
+                            "name": "p2",
+                            "type": "string",
+                            "allowMultiple" : true
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required": true
+                        }
+                        
+                    ]
+                }
+                
+            ]
+        },
+        {
+            "path": "/multipleparams/{id}",
+            "operations": [
+                {
+                    "method": "POST",
+                    "nickname": "postParams4",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "header",
+                            "name": "x-whatever",
+                            "type": "string",
+                            "required" : "false"
+                        },
+                        {
+                            "paramType": "header",
+                            "name": "X-UI-APP",
+                            "type": "string",
+                            "required" : "false",
+                            "defaultValue" : "client/1.2.3"
+                        },
+                        {
+                            "paramType": "path",
+                            "name": "id",
+                            "type": "string",
+                            "required": true,
+                            "allowMultiple" : true
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string",
+                            "allowMultiple" : true
+                        },
+                        {
+                            "paramType": "header",
+                            "name": "p2",
+                            "type": "string",
+                            "allowMultiple" : true
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "data",
+                            "type": "Data",
+                            "required": true
+                        }
+                        
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data": {
+            "id": "Data",
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "the value"
+                }
+            }
+        }
+    }
+}

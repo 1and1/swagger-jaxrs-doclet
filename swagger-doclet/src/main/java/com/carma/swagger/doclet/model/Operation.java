@@ -101,6 +101,13 @@ public class Operation {
 		return this.parameters;
 	}
 
+	public Operation parameters(List<ApiParameter> params) {
+		Operation clone = new Operation(this);
+		clone.parameters = params == null || params.isEmpty() ? null : ImmutableList.copyOf(params);
+		return clone;
+	}
+
+
 	public List<ApiResponseMessage> getResponseMessages() {
 		return this.responseMessages;
 	}

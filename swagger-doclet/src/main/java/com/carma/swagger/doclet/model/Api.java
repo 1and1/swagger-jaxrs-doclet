@@ -14,6 +14,10 @@ public class Api {
 	private Api() {
 	}
 
+	private Api(Api other) {
+		this(other.path, other.description, other.operations);
+	}
+
 	public Api(String path, String description, Collection<Operation> operations) {
 		this.path = path;
 		this.description = description;
@@ -38,6 +42,12 @@ public class Api {
 
 	public Collection<Operation> getOperations() {
 		return this.operations;
+	}
+
+	public Api operations(Collection<Operation> operations) {
+		Api clone = new Api(this);
+		clone.operations = operations;
+		return clone;
 	}
 
 	@Override
