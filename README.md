@@ -23,9 +23,31 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest production version is 1.1.0.
+The latest fork version is 1.1.0.5, the latest upstream version is 1.1.0.
 
-This contains the following fixes/features:
+Fork version 1.1.0.5:
++ 1and1-branded UI (1and1-blue, removed swagger-links)
++ QualityOfLife-Improvements in the UI (fullscreen, expandAll, scrollbars instead of truncations)
++ simplify patching the included UI by generated ui-overrides.zip
++ Inherit Resource-@Path from baseclasses (https://github.com/teamcarma/swagger-jaxrs-doclet/pull/100)
++ Merge Operations with same parameters and return-types but differing mime-types (For RestResource-Methods differing only in response-mimetype) (https://github.com/teamcarma/swagger-jaxrs-doclet/pull/101)
++ additional (not annotated) headerParams can be documented by commandline-parameters. (Will not support MatrixParameters. Use Header "Cookie: JSESSIONID=..." instead).
+```
+<additionalparam>
+  -additionalHeaderParam X-UI-APP
+  -additionalHeaderParam My-Test-Version=1.2.3
+</additionalparam>
+```
++ swagger-specs of other maven-submodules can be added
+```
+<additionalparam>
+  -extraApiDeclarations ${basedir}/../othermodule/src/main/webapp/apidocs/resource1.json
+  -extraApiDeclarations ${basedir}/../othermodule/src/main/webapp/apidocs/resource2.json
+</additionalparam>
+```
+
+
+Upstream Version 1.1.0 contains the following fixes/features:
 
 + Support Java 8 (Issue 83)
 + Upgrade swagger UI to 2.1.0; fixes: 
@@ -463,8 +485,18 @@ These are the options that you may want to use to add additional functionality o
 
 <table>
 	<tr><th>Option</th><th>Purpose</th></tr>
+
 	<tr><td>-d</td><td>The path to the directory where the generated swagger json files should be written e.g. -d /tmp/foo. By default this will be the reportOutputDirectory of the doclet.</td></tr>
-	
+
+	<tr><td>-additionalHeaderParam</td><td>Additional (not annotated) headerparams can be added to the generated spec (and client) with this option. This is especially useful for headerparams evaluated in servletfilters. Example:
+<code><pre>
+&lt;additionalparam&gt;
+  -additionalHeaderParam X-UI-APP
+  -additionalHeaderParam My-Test-Version=1.2.3
+&lt;/additionalparam&gt;
+</pre></code>
+	</td></tr>
+
 	<tr><td>-apiAuthorizationsFile</td><td>The path to the json include file that contains the authorizations spec that should be included in the generated json. NOTE wrap the path in single qoutes to escape spaces. For example for Carma we use: 
 	<p></p>
 	<p>-apiAuthorizationsFile ${project.build.directory}/swagger/includes/apiauth.json</p>
@@ -514,7 +546,7 @@ These are the options that you may want to use to add additional functionality o
 	</td></tr>
 	
 	
-	<tr><td>-extraApiDeclarations</td><td>A CSV of paths to json include files that contains the definitions of extra apis that should be included in the generated json. NOTE wrap the CSV of paths in single qoutes to escape spaces. For example for Carma we use: 
+	<tr><td>-extraApiDeclarations</td><td>A path to json include files that contains the definitions of extra apis that should be included in the generated json. This option can be applied multiple times. NOTE wrap the CSV of paths in single qoutes to escape spaces. For example for Carma we use: 
 	<p></p>
 	<p>-extraApiDeclarations ${project.build.directory}/swagger/includes/oauth.json</p>
 	
