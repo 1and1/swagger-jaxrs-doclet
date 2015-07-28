@@ -39,6 +39,22 @@ public class ApiResponseMessage {
 	}
 
 	/**
+	 * This merges a response model into this response model
+	 * @param message The message to merge
+	 * @param responseModel The response model to merge
+	 */
+	public void merge(String message, String responseModel) {
+		if (this.responseModel == null) {
+			this.responseModel = responseModel;
+		}
+		if (this.message == null || this.message.trim().length() == 0) {
+			this.message = message;
+		} else {
+			this.message += "<br>" + message;
+		}
+	}
+
+	/**
 	 * This gets the code
 	 * @return the code
 	 */

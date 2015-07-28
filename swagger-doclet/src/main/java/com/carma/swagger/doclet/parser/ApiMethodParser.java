@@ -164,7 +164,7 @@ public class ApiMethodParser {
 		String returnTypeItemsRef = null;
 		String returnTypeItemsType = null;
 		String returnTypeItemsFormat = null;
-        List<String> returnTypeItemsAllowableValues = null;
+		List<String> returnTypeItemsAllowableValues = null;
 		Type containerOf = ParserHelper.getContainerType(returnType, null, this.allClasses);
 
 		Map<String, Type> varsToTypes = new HashMap<String, Type>();
@@ -198,10 +198,10 @@ public class ApiMethodParser {
 			returnTypeName = "array";
 			// its a collection, add the container of type to the model
 			modelType = containerOf;
-            returnTypeItemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
-            if (returnTypeItemsAllowableValues != null) {
-                returnTypeItemsType = "string";
-            } else {
+			returnTypeItemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+			if (returnTypeItemsAllowableValues != null) {
+				returnTypeItemsType = "string";
+			} else {
 				// set the items type or ref
 				if (ParserHelper.isPrimitive(containerOf, this.options)) {
 					OptionalName oName = this.translator.typeName(containerOf);
@@ -210,7 +210,7 @@ public class ApiMethodParser {
 				} else {
 					returnTypeItemsRef = this.translator.typeName(containerOf, viewClasses).value();
 				}
-            }
+			}
 		} else {
 			// if its not a container then adjust the return type name for any views
 			returnTypeOName = this.translator.typeName(returnType, viewClasses);
@@ -342,7 +342,9 @@ public class ApiMethodParser {
 	}
 
 	private List<ApiResponseMessage> generateResponseMessages() {
-		List<ApiResponseMessage> responseMessages = new LinkedList<ApiResponseMessage>();
+		List<ApiResponseMessage> responseMessages = new ArrayList<ApiResponseMessage>();
+
+		Map<Integer, Integer> codeToMessageIdx = new HashMap<Integer, Integer>();
 
 		List<String> tagValues = ParserHelper.getInheritableTagValues(this.methodDoc, this.options.getResponseMessageTags(), this.options);
 		if (tagValues != null) {
@@ -381,7 +383,13 @@ public class ApiMethodParser {
 							}
 						}
 
-						responseMessages.add(new ApiResponseMessage(statusCode, desc, responseModel));
+						if (codeToMessageIdx.containsKey(statusCode)) {
+							int idx = codeToMessageIdx.get(statusCode);
+							responseMessages.get(idx).merge(desc, responseModel);
+						} else {
+							responseMessages.add(new ApiResponseMessage(statusCode, desc, responseModel));
+							codeToMessageIdx.put(statusCode, responseMessages.size() - 1);
+						}
 						break;
 					}
 				}

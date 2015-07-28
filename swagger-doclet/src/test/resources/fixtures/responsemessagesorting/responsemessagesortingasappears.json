@@ -22,18 +22,8 @@
                         },
                         {
                             "code": 401,
-                            "message": "not authA",
+                            "message": "not authA<br>not authB<br>not_authC|If user not authenticated",
                             "responseModel" : "Response3"
-                        },
-                        {
-                            "code": 401,
-                            "message": "not authB",
-                            "responseModel" : "Response3"
-                        },
-                        {
-                            "code": 401,
-                            "message": "not_authC|If user not authenticated",
-                            "responseModel" : "Response1"
                         }
                     ]
                 }
