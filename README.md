@@ -23,7 +23,10 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest fork version is 1.1.0.5, the latest upstream version is 1.1.0.
+The latest fork version is 1.1.0.6, the latest upstream version is 1.1.0.
+
+Fork version 1.1.0.6:
++ Disabled online swagger-validator because intranet unreachable from internet
 
 Fork version 1.1.0.5:
 + 1and1-branded UI (1and1-blue, removed swagger-links)
