@@ -63,7 +63,7 @@ public class AnnotationParser {
 	 * This gets the value of the annotation with the given FQN and attribute named key
 	 * @param qualifiedAnnotationType The FQN of the annotation to get the value of
 	 * @param keys The name of the attribute(s) of the annotation to get the value of
-	 * @return The value of the given named attribute of the given annotation
+	 * @return The value of the given named attribute of the given annotation or null if it was not present
 	 */
 	public String getAnnotationValue(String qualifiedAnnotationType, String... keys) {
 		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);

@@ -20,7 +20,27 @@ public class ServiceDoclet {
 		String[][] additionalParams = doc.options();
 		sanitizeAdditionalParams(additionalParams);
 		DocletOptions options = DocletOptions.parse(additionalParams);
-		return new JaxRsAnnotationParser(options, doc).run();
+		// delay before
+		if (options.isProfileMode()) {
+			try {
+				Thread.sleep(30000);
+			} catch (InterruptedException ex) {
+				// ignore
+			}
+		}
+
+		// exec
+		boolean result = new JaxRsAnnotationParser(options, doc).run();
+
+		// delay after
+		if (options.isProfileMode()) {
+			try {
+				Thread.sleep(30000);
+			} catch (InterruptedException ex) {
+				// ignore
+			}
+		}
+		return result;
 	}
 
 	private static void sanitizeAdditionalParams(String[][] additionalParams) {
@@ -172,6 +192,9 @@ public class ServiceDoclet {
 		options.put("-sortApisByPath", 1);
 
 		options.put("-additionalHeaderParam", 2);
+
+		// profile mode - adds extra delay at start and end to help capture profile stats
+		options.put("-profileMode", 1);
 
 		// standard doclet options that we don't use but have here to avoid errors with tools like gradle
 		// that auto pass them in

@@ -82,16 +82,6 @@ public class JaxRsAnnotationParser {
 			Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();
 			for (ClassDoc classDoc : this.rootDoc.classes()) {
 
-				// see if deprecated
-				if (this.options.isExcludeDeprecatedResourceClasses() && ParserHelper.isDeprecated(classDoc, this.options)) {
-					continue;
-				}
-
-				// see if excluded via a tag
-				if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
-					continue;
-				}
-
 				// see if excluded via its FQN
 				boolean excludeResource = false;
 				if (this.options.getExcludeResourcePrefixes() != null && !this.options.getExcludeResourcePrefixes().isEmpty()) {
@@ -121,8 +111,20 @@ public class JaxRsAnnotationParser {
 					continue;
 				}
 
+				// see if deprecated
+				if (this.options.isExcludeDeprecatedResourceClasses() && ParserHelper.isDeprecated(classDoc, this.options)) {
+					continue;
+				}
+
+				// see if excluded via a tag
+				if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
+					continue;
+				}
+
 				docletClasses.add(classDoc);
 			}
+
+			ClassDocCache classCache = new ClassDocCache(docletClasses);
 
 			List<ApiDeclaration> declarations = null;
 
@@ -136,8 +138,8 @@ public class JaxRsAnnotationParser {
 				while (currentClassDoc != null) {
 
 					for (MethodDoc method : currentClassDoc.methods()) {
-						if (ParserHelper.parsePath(method, this.options) != null && HttpMethod.fromMethod(method) == null) {
-							ClassDoc subResourceClassDoc = ParserHelper.lookUpClassDoc(method.returnType(), docletClasses);
+						if (ParserHelper.resolveMethodPath(method, this.options) != null && HttpMethod.fromMethod(method) == null) {
+							ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
 							if (subResourceClassDoc != null) {
 								subResourceClasses.put(method.returnType(), subResourceClassDoc);
 							}

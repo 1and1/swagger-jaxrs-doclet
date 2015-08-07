@@ -24,6 +24,9 @@ public class ArraysTest {
 	private Recorder recorderMock;
 	private DocletOptions options;
 
+	// only have this above 1 for profiling
+	private int numExecutions = 1;
+
 	@Before
 	public void setup() {
 		this.recorderMock = mock(Recorder.class);
@@ -33,8 +36,11 @@ public class ArraysTest {
 	@Test
 	public void testStart() throws IOException {
 		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.arrays");
-		new JaxRsAnnotationParser(this.options, rootDoc).run();
 
+		JaxRsAnnotationParser parser = new JaxRsAnnotationParser(this.options, rootDoc);
+		for (int i = 0; i < this.numExecutions; i++) {
+			parser.run();
+		}
 		final ApiDeclaration api = loadFixture("/fixtures/arrays/arrays.json", ApiDeclaration.class);
 		verify(this.recorderMock).record(any(File.class), eq(api));
 	}

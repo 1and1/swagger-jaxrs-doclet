@@ -1,7 +1,6 @@
 package com.carma.swagger.doclet.parser;
 
 import static com.google.common.base.Objects.equal;
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Maps.uniqueIndex;
 
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class CrossClassApiParser {
 		this.classes = classes;
 		this.typeClasses = typeClasses;
 		this.subResourceClasses = subResourceClasses;
-		this.rootPath = firstNonNull(ParserHelper.parsePathRecursive(classDoc, options), "");
+		this.rootPath = ParserHelper.resolveClassPath(classDoc, options);
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;
@@ -91,7 +90,7 @@ public class CrossClassApiParser {
 		this.classes = classes;
 		this.typeClasses = typeClasses;
 		this.subResourceClasses = subResourceClasses;
-		this.rootPath = parentResourcePath + firstNonNull(ParserHelper.parsePathRecursive(classDoc, options), "");
+		this.rootPath = parentResourcePath + ParserHelper.resolveClassPath(classDoc, options);
 		this.swaggerVersion = swaggerVersion;
 		this.apiVersion = apiVersion;
 		this.basePath = basePath;
@@ -111,6 +110,12 @@ public class CrossClassApiParser {
 	 * @param declarations The map of resource name to declaration which will be added to
 	 */
 	public void parse(Map<String, ApiDeclaration> declarations) {
+
+		Collection<ClassDoc> allClasses = new ArrayList<ClassDoc>();
+		allClasses.addAll(this.classes);
+		allClasses.addAll(this.typeClasses);
+
+		ClassDocCache classCache = new ClassDocCache(allClasses);
 
 		ClassDoc currentClassDoc = this.classDoc;
 		while (currentClassDoc != null) {
@@ -137,9 +142,8 @@ public class CrossClassApiParser {
 				// skip
 			} else {
 				for (MethodDoc method : currentClassDoc.methods()) {
-					ApiMethodParser methodParser = this.parentMethod == null ?
-							new ApiMethodParser(this.options, this.rootPath, method, this.classes, this.typeClasses, defaultErrorTypeClass)
-					      : new ApiMethodParser(this.options, this.parentMethod, method, this.classes, this.typeClasses, defaultErrorTypeClass);
+					ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, allClasses,
+							defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, allClasses, defaultErrorTypeClass);
 
 					Method parsedMethod = methodParser.parse();
 					if (parsedMethod == null) {
@@ -151,7 +155,7 @@ public class CrossClassApiParser {
 					String resourcePath = buildResourcePath(classResourcePath, method);
 
 					if (parsedMethod.isSubResource()) {
-						ClassDoc subResourceClassDoc = ParserHelper.lookUpClassDoc(method.returnType(), this.classes);
+						ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
 						if (subResourceClassDoc != null) {
 							// delete class from the dictionary to handle recursive sub-resources
 							Collection<ClassDoc> shrunkClasses = new ArrayList<ClassDoc>(this.classes);

@@ -160,6 +160,9 @@ public class DocletOptions {
 			} else if (option[0].equals("-disableDeprecatedModelClassExclusion")) {
 				parsedOptions.excludeDeprecatedModelClasses = false;
 
+			} else if (option[0].equals("-profileMode")) {
+				parsedOptions.profileMode = true;
+
 			} else if (option[0].equals("-excludeModelPrefixes") || option[0].equals("-typesToTreatAsOpaque")) {
 				parsedOptions.excludeModelPrefixes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-excludeResourcePrefixes")) {
@@ -345,6 +348,8 @@ public class DocletOptions {
 	private String resourceRootPath = "/root";
 
 	private boolean includeSwaggerUi = true;
+
+	private boolean profileMode = false;
 
 	private Properties variableReplacements;
 
@@ -1600,6 +1605,22 @@ public class DocletOptions {
 	public DocletOptions setVariableReplacements(Properties variableReplacements) {
 		this.variableReplacements = variableReplacements;
 		return this;
+	}
+
+	/**
+	 * This gets the profileMode
+	 * @return the profileMode
+	 */
+	public boolean isProfileMode() {
+		return this.profileMode;
+	}
+
+	/**
+	 * This sets the profileMode
+	 * @param profileMode the profileMode to set
+	 */
+	public void setProfileMode(boolean profileMode) {
+		this.profileMode = profileMode;
 	}
 
 	/**

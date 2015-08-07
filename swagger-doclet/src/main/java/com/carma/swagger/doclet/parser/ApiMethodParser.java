@@ -56,9 +56,7 @@ public class ApiMethodParser {
 	private final MethodDoc methodDoc;
 	private final Set<Model> models;
 	private final HttpMethod httpMethod;
-	private final Collection<ClassDoc> classes; // model classes
-	private final Collection<ClassDoc> typeClasses; // additional classes such as for primitives
-	private final Collection<ClassDoc> allClasses; // merge of model and additional classes
+	private final Collection<ClassDoc> classes;
 	private final String classDefaultErrorType;
 	private final String methodDefaultErrorType;
 
@@ -68,11 +66,9 @@ public class ApiMethodParser {
 	 * @param parentPath
 	 * @param methodDoc
 	 * @param classes
-	 * @param typeClasses
 	 * @param classDefaultErrorType
 	 */
-	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes, Collection<ClassDoc> typeClasses,
-			String classDefaultErrorType) {
+	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.parentPath = parentPath;
@@ -80,17 +76,9 @@ public class ApiMethodParser {
 		this.models = new LinkedHashSet<Model>();
 		this.httpMethod = ParserHelper.resolveMethodHttpMethod(methodDoc);
 		this.parentMethod = null;
-		this.classes = classes;
-		this.typeClasses = typeClasses;
 		this.classDefaultErrorType = classDefaultErrorType;
 		this.methodDefaultErrorType = ParserHelper.getInheritableTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
-		this.allClasses = new HashSet<ClassDoc>();
-		if (classes != null) {
-			this.allClasses.addAll(classes);
-		}
-		if (typeClasses != null) {
-			this.allClasses.addAll(typeClasses);
-		}
+		this.classes = classes;
 	}
 
 	/**
@@ -99,12 +87,10 @@ public class ApiMethodParser {
 	 * @param parentMethod
 	 * @param methodDoc
 	 * @param classes
-	 * @param typeClasses
 	 * @param classDefaultErrorType
 	 */
-	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, Collection<ClassDoc> typeClasses,
-			String classDefaultErrorType) {
-		this(options, parentMethod.getPath(), methodDoc, classes, typeClasses, classDefaultErrorType);
+	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
+		this(options, parentMethod.getPath(), methodDoc, classes, classDefaultErrorType);
 
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
@@ -165,7 +151,7 @@ public class ApiMethodParser {
 		String returnTypeItemsType = null;
 		String returnTypeItemsFormat = null;
 		List<String> returnTypeItemsAllowableValues = null;
-		Type containerOf = ParserHelper.getContainerType(returnType, null, this.allClasses);
+		Type containerOf = ParserHelper.getContainerType(returnType, null, this.classes);
 
 		Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
@@ -374,7 +360,7 @@ public class ApiMethodParser {
 
 						String responseModel = null;
 						if (responseModelClass != null) {
-							Type responseType = ParserHelper.findModel(this.allClasses, responseModelClass);
+							Type responseType = ParserHelper.findModel(this.classes, responseModelClass);
 							if (responseType != null) {
 								responseModel = this.translator.typeName(responseType).value();
 								if (this.options.isParseModels()) {
@@ -465,7 +451,7 @@ public class ApiMethodParser {
 		// read exclude params
 		List<String> excludeParams = ParserHelper.getCsvParams(this.methodDoc, allParamNames, this.options.getExcludeParamsTags(), this.options);
 
-		ParameterReader paramReader = new ParameterReader(this.options, this.allClasses);
+		ParameterReader paramReader = new ParameterReader(this.options, this.classes);
 		paramReader.readClass(this.methodDoc.containingClass());
 
 		Set<String> addedParamNames = new HashSet<String>();
@@ -544,7 +530,7 @@ public class ApiMethodParser {
 						containerOfPrimitiveType = typeFormat[0];
 						containerOfPrimitiveTypeFormat = typeFormat[1];
 					} else {
-						containerOf = ParserHelper.findModel(this.allClasses, containerOfType);
+						containerOf = ParserHelper.findModel(this.classes, containerOfType);
 						if (containerOf == null) {
 							raiseCustomTypeNotFoundError(containerOfType);
 						}
@@ -572,17 +558,14 @@ public class ApiMethodParser {
 					paramTypes = new Type[paramTypeNames.length];
 					int i = 0;
 					for (String paramTypeName : paramTypeNames) {
-						paramTypes[i] = ParserHelper.findModel(this.allClasses, paramTypeName);
-						if (paramTypes[i] == null) {
-							paramTypes[i] = ParserHelper.findModel(this.typeClasses, paramTypeName);
-						}
+						paramTypes[i] = ParserHelper.findModel(this.classes, paramTypeName);
 						i++;
 					}
 				}
 			}
 
 			// lookup the type from the doclet classes
-			customType = ParserHelper.findModel(this.allClasses, customTypeName);
+			customType = ParserHelper.findModel(this.classes, customTypeName);
 			if (customType == null) {
 				raiseCustomTypeNotFoundError(customTypeName);
 			} else {
