@@ -5,7 +5,7 @@
 	<groupId>com.1and1</groupId>
 	<artifactId>swagger-doclet-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.1.0.7-SNAPSHOT</version>
+	<version>1.1.0.7</version>
 	<name>Swagger Doclet</name>
 	<url>https://github.com/1and1/swagger-jaxrs-doclet.git</url>
 	<description>
@@ -41,7 +41,7 @@
 		<connection>scm:git:git@github.com:1and1/swagger-jaxrs-doclet.git</connection>
 		<developerConnection>scm:git:git@github.com:1and1/swagger-jaxrs-doclet.git</developerConnection>
 		<url>https://github.com/1and1/swagger-jaxrs-doclet</url>
-		<tag>HEAD</tag>
+		<tag>swagger-doclet-parent-1.1.0.7</tag>
 	</scm>
 
 	<issueManagement>
