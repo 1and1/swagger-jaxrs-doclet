@@ -61,6 +61,12 @@ public class ApiDeclaration {
 		return this.basePath;
 	}
 
+	public ApiDeclaration basePath(String basePath) {
+		ApiDeclaration clone = new ApiDeclaration(this);
+		clone.basePath = basePath;
+		return clone;
+	}
+
 	public String getResourcePath() {
 		return this.resourcePath;
 	}

@@ -167,7 +167,10 @@ public class JaxRsAnnotationParser {
 			// add any extra declarations
 			if (this.options.getExtraApiDeclarations() != null && !this.options.getExtraApiDeclarations().isEmpty()) {
 				declarationColl = new ArrayList<ApiDeclaration>(declarationColl);
-				declarationColl.addAll(this.options.getExtraApiDeclarations());
+				for (ApiDeclaration apiDeclaration : this.options.getExtraApiDeclarations()) {
+					// ignore other modules path
+					declarationColl.add(apiDeclaration.basePath(this.options.getApiBasePath()));
+				}
 			}
 
 			// set root path on any empty resources
