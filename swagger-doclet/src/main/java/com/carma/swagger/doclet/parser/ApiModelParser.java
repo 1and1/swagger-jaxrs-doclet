@@ -38,6 +38,7 @@ public class ApiModelParser {
 	final Translator translator;
 	private final Type rootType;
 	private final Set<Model> models;
+	private final Set<Model> parentModels = new LinkedHashSet<>();
 	private final ClassDoc[] viewClasses;
 	private final boolean inheritFields;
 
@@ -103,7 +104,7 @@ public class ApiModelParser {
 			}
 		}
 		this.models = new LinkedHashSet<Model>();
-		
+
         if (rootType.asClassDoc() != null && rootType.asClassDoc().superclass() != null) {
             AnnotationParser p = new AnnotationParser(rootType.asClassDoc().superclass(), this.options);
             for (String subTypeAnnotation : this.options.getSubTypesAnnotations()) {
@@ -136,6 +137,22 @@ public class ApiModelParser {
 	}
 
 	/**
+	 * This creates a ApiModelParser
+	 * @param options
+	 * @param translator
+	 * @param rootType
+	 * @param viewClasses
+	 * @param inheritFields whether to inherit fields from super types
+	 * @param parentModels parent type models
+	 */
+	public ApiModelParser(DocletOptions options, Translator translator, Type rootType,
+						  ClassDoc[] viewClasses, boolean inheritFields, Set<Model> parentModels) {
+		this(options, translator, rootType, viewClasses, inheritFields);
+		this.parentModels.clear();
+		this.parentModels.addAll(parentModels);
+	}
+
+	/**
 	 * This adds the given vars to types to the ones used by this model
 	 * @param varsToTypes
 	 * @return This
@@ -157,7 +174,7 @@ public class ApiModelParser {
 
 		// process sub types
 		for (ClassDoc subType : this.subTypeClasses) {
-			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, false);
+			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, null, false, models);
 			Set<Model> subTypeModesl = subTypeParser.parse();
 			this.models.addAll(subTypeModesl);
 		}
@@ -180,7 +197,7 @@ public class ApiModelParser {
 		ClassDoc classDoc = type.asClassDoc();
 
 		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isCollection || isMap || isArray || classDoc == null || classDoc.isEnum()
-				|| alreadyStoredType(type)) {
+				|| alreadyStoredType(type, this.models) || alreadyStoredType(type, this.parentModels)) {
 			return;
 		}
 
@@ -946,7 +963,7 @@ public class ApiModelParser {
 		return type;
 	}
 
-	private boolean alreadyStoredType(Type type) {
+	private boolean alreadyStoredType(Type type, Set<Model> apiModels) {
 
 		// if a collection then the type to check is the param type
 		Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, null);
@@ -956,7 +973,7 @@ public class ApiModelParser {
 
 		final Type typeToCheck = type;
 
-		return filter(this.models, new Predicate<Model>() {
+		return filter(apiModels, new Predicate<Model>() {
 
 			public boolean apply(Model model) {
 				return model.getId().equals(ApiModelParser.this.translator.typeName(typeToCheck).value());
