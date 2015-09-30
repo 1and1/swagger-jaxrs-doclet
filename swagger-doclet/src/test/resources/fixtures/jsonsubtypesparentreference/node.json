@@ -1,0 +1,52 @@
+{
+  "apiVersion" : "0",
+  "swaggerVersion" : "1.2",
+  "basePath" : "http://localhost:8080",
+  "resourcePath" : "/node",
+  "apis" : [ {
+    "path" : "/node/{id}",
+    "operations" : [ {
+      "method" : "GET",
+      "nickname" : "getNode",
+      "type" : "Node",
+      "parameters" : [ {
+        "type" : "string",
+        "paramType" : "path",
+        "name" : "id",
+        "required" : true
+      } ]
+    } ]
+  } ],
+  "models" : {
+    "Folder" : {
+      "id" : "Folder",
+      "properties" : {
+        "parent" : {
+          "type" : "Node"
+        }
+      }
+    },
+    "File" : {
+      "id" : "File",
+      "properties" : {
+        "parent" : {
+          "type" : "Node"
+        }
+      }
+    },
+    "Node" : {
+      "id" : "Node",
+      "properties" : {
+        "parent" : {
+          "type" : "Node"
+        },
+        "type" : {
+          "type" : "string"
+        }
+      },
+      "subTypes" : [ "File", "Folder" ],
+      "discriminator" : "type",
+      "required" : [ "type" ]
+    }
+  }
+}
