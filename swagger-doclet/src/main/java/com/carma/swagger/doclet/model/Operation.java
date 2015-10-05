@@ -46,6 +46,11 @@ public class Operation {
 		this.type = o.type;
 		this.format = o.format;
 		this.items = o.items;
+		this.uniqueItems = o.uniqueItems;
+		this.allowableValues = o.allowableValues;
+		this.minimum = o.minimum;
+		this.maximum = o.maximum;
+		this.defaultValue = o.defaultValue;
 		this.parameters = o.parameters;
 		this.responseMessages = o.responseMessages;
 		this.summary = o.summary;
@@ -73,8 +78,6 @@ public class Operation {
 		this.minimum = method.getReturnTypeMinimum();
 		this.maximum = method.getReturnTypeMaximum();
 		this.defaultValue = method.getReturnTypeDefaultValue();
-		this.parameters = method.getParameters().isEmpty() ? null : method.getParameters();
-		this.responseMessages = method.getResponseMessages().isEmpty() ? null : method.getResponseMessages();
 		this.summary = emptyToNull(method.getSummary());
 		this.notes = emptyToNull(method.getNotes());
 		this.consumes = method.getConsumes() == null || method.getConsumes().isEmpty() ? null : ImmutableList.copyOf(method.getConsumes());
