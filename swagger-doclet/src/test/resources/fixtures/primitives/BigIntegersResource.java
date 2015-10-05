@@ -7,6 +7,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+/**
+ * @priority 10
+ */
 @Path("/primitives/bigintegers")
 @SuppressWarnings("javadoc")
 public class BigIntegersResource {

@@ -72,6 +72,12 @@ public class CollectionResource {
 		// noop
 	}
 
+	@GET
+	@Path("/setofstrings")
+	public Set<String> getSetOfStrings() {
+		return null;
+	}
+
 	@POST
 	@Path("/setofstrings")
 	public void setSetOfStrings(Set<String> items) {

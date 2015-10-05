@@ -17,6 +17,9 @@ public class ServiceDoclet {
 	 * @return true on success.
 	 */
 	public static boolean start(RootDoc doc) {
+
+		long start = System.currentTimeMillis();
+
 		String[][] additionalParams = doc.options();
 		sanitizeAdditionalParams(additionalParams);
 		DocletOptions options = DocletOptions.parse(additionalParams);
@@ -40,6 +43,11 @@ public class ServiceDoclet {
 				// ignore
 			}
 		}
+
+		long end = System.currentTimeMillis();
+
+		System.out.println("Completed doclet api generation in " + (end - start) + " ms.");
+
 		return result;
 	}
 
@@ -154,7 +162,9 @@ public class ServiceDoclet {
 		options.put("-disableCopySwaggerUi", 1);
 		options.put("-skipUiFiles", 1);
 
+		options.put("-logDebug", 1);
 		options.put("-disableModels", 1);
+		options.put("-useFullModelIds", 1);
 		options.put("-modelFieldsRequiredByDefault", 1);
 		options.put("-modelFieldsNamingConvention", 2);
 		options.put("-disableModelFieldsXmlAccessType", 1);
@@ -175,6 +185,9 @@ public class ServiceDoclet {
 
 		// flags params as multiple
 		options.put("-csvParamsTags", 2);
+
+		// allows extra params on method
+		options.put("-implicitParamTags", 2);
 
 		// legacy no longer needed
 		options.put("-crossClassResources", 1);

@@ -30,9 +30,10 @@ public class NameBasedTranslator implements Translator {
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type, boolean,
+	 *      com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType) {
+	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, boolean useFqn, ClassDoc[] views) {
 		if (paramType == null) {
 			paramType = parameter.type();
 		}
@@ -45,15 +46,15 @@ public class NameBasedTranslator implements Translator {
 			}
 		}
 
-		return typeName(paramType);
+		return typeName(paramType, useFqn, views);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, com.sun.javadoc.ClassDoc[])
+	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean, com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName typeName(Type type, ClassDoc[] views) {
-		String[] typeFormat = ParserHelper.typeOf(type, this.options);
+	public OptionalName typeName(Type type, boolean useFqn, ClassDoc[] views) {
+		String[] typeFormat = ParserHelper.typeOf(type, useFqn, this.options);
 
 		if (views != null && views.length > 0 && !ParserHelper.isPrimitive(type, this.options)) {
 			StringBuilder nameWithView = new StringBuilder(typeFormat[0]).append("-");
@@ -68,10 +69,10 @@ public class NameBasedTranslator implements Translator {
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean)
 	 */
-	public OptionalName typeName(Type type) {
-		String[] typeFormat = ParserHelper.typeOf(type, this.options);
+	public OptionalName typeName(Type type, boolean useFqn) {
+		String[] typeFormat = ParserHelper.typeOf(type, useFqn, this.options);
 		return presentOrMissing(typeFormat[0], typeFormat[1]);
 	}
 

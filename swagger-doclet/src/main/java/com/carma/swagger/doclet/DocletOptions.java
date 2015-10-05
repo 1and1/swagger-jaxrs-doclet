@@ -84,15 +84,17 @@ public class DocletOptions {
 				parsedOptions.apiInfo = loadModelFromJson("-apiInfoFile", option[1], ApiInfo.class);
 
 			} else if (option[0].equals("-extraApiDeclarations")) {
-				if (parsedOptions.extraApiDeclarations == null) {
-					parsedOptions.extraApiDeclarations = new ArrayList<ApiDeclaration>();
-				}
+				List<ApiDeclaration> extraApiDeclarations = new ArrayList<ApiDeclaration>();
 				String[] filePaths = option[1].split(",");
 				for (String filePath : filePaths) {
 					filePath = filePath.trim();
-					ApiDeclaration api = loadModelFromJson("-apiAuthorizationsFile", filePath, ApiDeclaration.class);
-					parsedOptions.extraApiDeclarations.add(api);
+					ApiDeclaration api = loadModelFromJson("-extraApiDeclarations", filePath, ApiDeclaration.class);
+					extraApiDeclarations.add(api);
 				}
+				if (!extraApiDeclarations.isEmpty()) {
+					parsedOptions.extraApiDeclarations = extraApiDeclarations;
+				}
+
 			} else if (option[0].equals("-variablesPropertiesFile")) {
 
 				File varFile = new File(option[1]);
@@ -133,6 +135,10 @@ public class DocletOptions {
 				parsedOptions.excludeParamAnnotations.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-disableModels")) {
 				parsedOptions.parseModels = false;
+			} else if (option[0].equals("-useFullModelIds")) {
+				parsedOptions.useFullModelIds = true;
+			} else if (option[0].equals("-logDebug")) {
+				parsedOptions.logDebug = true;
 			} else if (option[0].equals("-modelFieldsRequiredByDefault")) {
 				parsedOptions.modelFieldsRequiredByDefault = true;
 			} else if (option[0].equals("-disableModelFieldsXmlAccessType")) {
@@ -212,6 +218,9 @@ public class DocletOptions {
 
 			} else if (option[0].equals("-csvParamsTags")) {
 				addTagsOption(parsedOptions.csvParamsTags, option);
+
+			} else if (option[0].equals("-implicitParamTags")) {
+				addTagsOption(parsedOptions.implicitParamTags, option);
 
 			} else if (option[0].equals("-paramsFormatTags")) {
 				addTagsOption(parsedOptions.paramsFormatTags, option);
@@ -374,6 +383,7 @@ public class DocletOptions {
 	private List<String> excludeFieldTags;
 	private List<String> excludeParamsTags;
 	private List<String> csvParamsTags;
+	private List<String> implicitParamTags;
 	private List<String> paramsFormatTags;
 	private List<String> paramsMinValueTags;
 	private List<String> paramMinValueAnnotations;
@@ -434,7 +444,9 @@ public class DocletOptions {
 	private boolean excludeDeprecatedFields = true;
 	private boolean excludeDeprecatedParams = true;
 
+	private boolean logDebug = false;
 	private boolean parseModels = true;
+	private boolean useFullModelIds = false;
 	private boolean modelFieldsRequiredByDefault = false;
 	private boolean modelFieldsXmlAccessTypeEnabled = true;
 	private boolean modelFieldsDefaultXmlAccessTypeEnabled = false;
@@ -463,6 +475,7 @@ public class DocletOptions {
 		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
 		this.excludeParamAnnotations.add("javax.ws.rs.CookieParam");
 		this.excludeParamAnnotations.add("javax.ws.rs.MatrixParam");
+		this.excludeParamAnnotations.add("javax.ws.rs.container.Suspended");
 
 		this.responseMessageTags = new ArrayList<String>();
 		this.responseMessageTags.add("responseMessage");
@@ -561,6 +574,11 @@ public class DocletOptions {
 
 		this.csvParamsTags = new ArrayList<String>();
 		this.csvParamsTags.add("csvParams");
+
+		this.implicitParamTags = new ArrayList<String>();
+		this.implicitParamTags.add("implicitParam");
+		this.implicitParamTags.add("additionalParam");
+		this.implicitParamTags.add("extraParam");
 
 		this.paramsFormatTags = new ArrayList<String>();
 		this.paramsFormatTags.add("paramsFormat");
@@ -700,6 +718,7 @@ public class DocletOptions {
 		this.resourcePriorityTags = new ArrayList<String>();
 		this.resourcePriorityTags.add("resourcePriority");
 		this.resourcePriorityTags.add("resourceOrder");
+		this.resourcePriorityTags.add("priority");
 
 		this.resourceDescriptionTags = new ArrayList<String>();
 		this.resourceDescriptionTags.add("resourceDescription");
@@ -863,6 +882,10 @@ public class DocletOptions {
 	 */
 	public List<String> getCsvParamsTags() {
 		return this.csvParamsTags;
+	}
+
+	public List<String> getImplicitParamTags() {
+		return this.implicitParamTags;
 	}
 
 	/**
@@ -1070,6 +1093,23 @@ public class DocletOptions {
 	 */
 	public boolean isParseModels() {
 		return this.parseModels;
+	}
+
+	/**
+	 * This is whether to use FQN of classes for model ids, only needed if your model uses
+	 * same name classes from different packages.
+	 * @return the useFullModelIds
+	 */
+	public boolean isUseFullModelIds() {
+		return this.useFullModelIds;
+	}
+
+	/**
+	 * This sets the useFullModelIds
+	 * @param useFullModelIds the useFullModelIds to set
+	 */
+	public void setUseFullModelIds(boolean useFullModelIds) {
+		this.useFullModelIds = useFullModelIds;
 	}
 
 	/**
@@ -1624,6 +1664,14 @@ public class DocletOptions {
 	 */
 	public void setProfileMode(boolean profileMode) {
 		this.profileMode = profileMode;
+	}
+
+	/**
+	 * This gets the logDebug
+	 * @return the logDebug
+	 */
+	public boolean isLogDebug() {
+		return this.logDebug;
 	}
 
 	/**

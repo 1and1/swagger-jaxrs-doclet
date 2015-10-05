@@ -127,21 +127,23 @@ public class ApiDeclaration {
 	}
 
 	/**
+	 * This sets the priority
+	 * @param priority the priority to set
+	 */
+	// NOTE this is needed to be able to set the priority
+	// when these are read from external api declaration files
+	@JsonProperty
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
+	/**
 	 * This gets the description of this api declaration in a resource listing
 	 * @return the description
 	 */
 	@JsonIgnore
 	public String getDescription() {
 		return this.description;
-	}
-
-	/**
-	 * This sets the priority
-	 * @param priority the priority to set
-	 */
-	@JsonProperty
-	public void setPriority(int priority) {
-		this.priority = priority;
 	}
 
 	/**
@@ -158,14 +160,14 @@ public class ApiDeclaration {
 	 */
 	@Override
 	public int hashCode() {
+		// NOTE priority and description should NOT be included in the hashcode/equals
+		// as they are not part of this object but rather used externally when building the resource listing
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((this.apiVersion == null) ? 0 : this.apiVersion.hashCode());
 		result = prime * result + ((this.apis == null) ? 0 : this.apis.hashCode());
 		result = prime * result + ((this.basePath == null) ? 0 : this.basePath.hashCode());
-		result = prime * result + ((this.description == null) ? 0 : this.description.hashCode());
 		result = prime * result + ((this.models == null) ? 0 : this.models.hashCode());
-		result = prime * result + this.priority;
 		result = prime * result + ((this.resourcePath == null) ? 0 : this.resourcePath.hashCode());
 		result = prime * result + ((this.swaggerVersion == null) ? 0 : this.swaggerVersion.hashCode());
 		return result;
@@ -177,6 +179,8 @@ public class ApiDeclaration {
 	 */
 	@Override
 	public boolean equals(Object obj) {
+		// NOTE priority and description should NOT be included in the hashcode/equals
+		// as they are not part of this object but rather used externally when building the resource listing
 		if (this == obj) {
 			return true;
 		}
@@ -208,21 +212,11 @@ public class ApiDeclaration {
 		} else if (!this.basePath.equals(other.basePath)) {
 			return false;
 		}
-		if (this.description == null) {
-			if (other.description != null) {
-				return false;
-			}
-		} else if (!this.description.equals(other.description)) {
-			return false;
-		}
 		if (this.models == null) {
 			if (other.models != null) {
 				return false;
 			}
 		} else if (!this.models.equals(other.models)) {
-			return false;
-		}
-		if (this.priority != other.priority) {
 			return false;
 		}
 		if (this.resourcePath == null) {

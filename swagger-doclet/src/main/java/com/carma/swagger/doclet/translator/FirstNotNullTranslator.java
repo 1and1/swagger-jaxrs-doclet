@@ -40,39 +40,40 @@ public class FirstNotNullTranslator implements Translator {
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, com.sun.javadoc.ClassDoc[])
+	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean, com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName typeName(final Type type, final ClassDoc[] views) {
+	public OptionalName typeName(Type type, boolean useFqn, ClassDoc[] views) {
 		return firstNotNullOf(new Function<Translator, OptionalName>() {
 
 			public OptionalName apply(Translator translator) {
-				return translator.typeName(type, views);
+				return translator.typeName(type, useFqn, views);
 			}
 		});
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#parameterTypeName(boolean, com.sun.javadoc.Parameter, com.sun.javadoc.Type, boolean,
+	 *      com.sun.javadoc.ClassDoc[])
 	 */
-	public OptionalName parameterTypeName(final boolean multipart, final Parameter parameter, final Type paramType) {
+	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, boolean useFqn, ClassDoc[] views) {
 		return firstNotNullOf(new Function<Translator, OptionalName>() {
 
 			public OptionalName apply(Translator translator) {
-				return translator.parameterTypeName(multipart, parameter, paramType);
+				return translator.parameterTypeName(multipart, parameter, paramType, useFqn, views);
 			}
 		});
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type)
+	 * @see com.carma.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean)
 	 */
-	public OptionalName typeName(final Type type) {
+	public OptionalName typeName(Type type, boolean useFqn) {
 		return firstNotNullOf(new Function<Translator, OptionalName>() {
 
 			public OptionalName apply(Translator translator) {
-				return translator.typeName(type);
+				return translator.typeName(type, useFqn);
 			}
 		});
 	}

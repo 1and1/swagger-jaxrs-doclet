@@ -10,11 +10,11 @@ import com.sun.javadoc.Type;
 
 public interface Translator {
 
-	OptionalName typeName(Type type, ClassDoc[] views);
+	OptionalName typeName(Type type, boolean useFqn, ClassDoc[] views);
 
-	OptionalName typeName(Type type);
+	OptionalName typeName(Type type, boolean useFqn);
 
-	OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType);
+	OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, boolean useFqn, ClassDoc[] views);
 
 	OptionalName fieldName(FieldDoc field);
 

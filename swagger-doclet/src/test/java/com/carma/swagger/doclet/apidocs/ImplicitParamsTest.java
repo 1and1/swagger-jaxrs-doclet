@@ -8,8 +8,6 @@ import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +19,7 @@ import com.carma.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.sun.javadoc.RootDoc;
 
 @SuppressWarnings("javadoc")
-public class PrimitivesTest {
+public class ImplicitParamsTest {
 
 	private Recorder recorderMock;
 	private DocletOptions options;
@@ -30,20 +28,15 @@ public class PrimitivesTest {
 	public void setup() {
 		this.recorderMock = mock(Recorder.class);
 		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
-		this.options.setSortResourcesByPath(false);
-		this.options.setSortResourcesByPriority(true);
 	}
 
 	@Test
 	public void testStart() throws IOException {
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.primitives");
+		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.implicitparams");
 		new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		List<String> primitives = Arrays.asList("boolean", "byte", "short", "int", "long", "float", "double", "string", "date", "biginteger", "bigdecimal");
-		for (String primitive : primitives) {
-			final ApiDeclaration api = loadFixture("/fixtures/primitives/" + primitive + "s.json", ApiDeclaration.class);
-			verify(this.recorderMock).record(any(File.class), eq(api));
-		}
+		final ApiDeclaration api = loadFixture("/fixtures/implicitparams/implicitparams.json", ApiDeclaration.class);
+		verify(this.recorderMock).record(any(File.class), eq(api));
 	}
 
 }

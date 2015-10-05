@@ -105,21 +105,22 @@ public class ApiModelParser {
 		}
 		this.models = new LinkedHashSet<Model>();
 
-        if (rootType.asClassDoc() != null && rootType.asClassDoc().superclass() != null) {
-            AnnotationParser p = new AnnotationParser(rootType.asClassDoc().superclass(), this.options);
-            for (String subTypeAnnotation : this.options.getSubTypesAnnotations()) {
-                List<ClassDoc> annSubTypes = p.getAnnotationArrayTypes(subTypeAnnotation, "value", "value");
-                if (annSubTypes != null) {
-                    for (ClassDoc subType : annSubTypes) {
-                        if (this.translator.typeName(rootType.asClassDoc()).value().equals(this.translator.typeName(subType).value())) {
-                            inheritFields = false;
-                        }
-                    }
-                }
-            }
-        }
-        
-        this.inheritFields = inheritFields;
+		if (rootType.asClassDoc() != null && rootType.asClassDoc().superclass() != null) {
+			AnnotationParser p = new AnnotationParser(rootType.asClassDoc().superclass(), this.options);
+			for (String subTypeAnnotation : this.options.getSubTypesAnnotations()) {
+				List<ClassDoc> annSubTypes = p.getAnnotationArrayTypes(subTypeAnnotation, "value", "value");
+				if (annSubTypes != null) {
+					for (ClassDoc subType : annSubTypes) {
+						if (this.translator.typeName(rootType.asClassDoc(), this.options.isUseFullModelIds()).value()
+								.equals(this.translator.typeName(subType, this.options.isUseFullModelIds()).value())) {
+							inheritFields = false;
+						}
+					}
+				}
+			}
+		}
+
+		this.inheritFields = inheritFields;
 	}
 
 	/**
@@ -183,7 +184,7 @@ public class ApiModelParser {
 	}
 
 	private void parseModel(Type type, boolean nested) {
-            
+
 		String qName = type.qualifiedTypeName();
 		boolean isPrimitive = ParserHelper.isPrimitive(type, this.options);
 		boolean isJavaxType = qName.startsWith("javax.");
@@ -221,7 +222,7 @@ public class ApiModelParser {
 				}
 			}
 		}
-                
+
 		// if parameterized then build map of the param vars
 		ParameterizedType pt = type.asParameterizedType();
 		if (pt != null) {
@@ -238,10 +239,10 @@ public class ApiModelParser {
 
 		Map<String, TypeRef> types = findReferencedTypes(classDoc, nested);
 		Map<String, Property> elements = findReferencedElements(classDoc, types, nested);
-                
+
 		if (!elements.isEmpty() || classDoc.superclass() != null) {
-                    
-			String modelId = this.translator.typeName(type, this.viewClasses).value();
+
+			String modelId = this.translator.typeName(type, this.options.isUseFullModelIds(), this.viewClasses).value();
 
 			List<String> requiredFields = null;
 			List<String> optionalFields = null;
@@ -271,7 +272,7 @@ public class ApiModelParser {
 				List<ClassDoc> annSubTypes = p.getAnnotationArrayTypes(subTypeAnnotation, "value", "value");
 				if (annSubTypes != null) {
 					for (ClassDoc subType : annSubTypes) {
-						String subTypeName = this.translator.typeName(subType).value();
+						String subTypeName = this.translator.typeName(subType, this.options.isUseFullModelIds()).value();
 						if (subTypeName != null) {
 							subTypes.add(subTypeName);
 							// add model for subtype
@@ -291,7 +292,8 @@ public class ApiModelParser {
 					discriminator = val;
 					// auto add as model field if not already done
 					if (!elements.containsKey(discriminator)) {
-						Property discriminatorProp = new Property(discriminator, null, "string", null, null, null, null, null, null, null, null, null, null, null);
+						Property discriminatorProp = new Property(discriminator, null, "string", null, null, null, null, null, null, null, null, null, null,
+								null);
 						elements.put(discriminator, discriminatorProp);
 					}
 					// auto add discriminator to required fields
@@ -315,7 +317,7 @@ public class ApiModelParser {
 	 * @return The id of the root model
 	 */
 	public String getRootModelId() {
-		return this.translator.typeName(this.rootType, this.viewClasses).value();
+		return this.translator.typeName(this.rootType, this.options.isUseFullModelIds(), this.viewClasses).value();
 	}
 
 	static class TypeRef {
@@ -455,6 +457,8 @@ public class ApiModelParser {
 			for (FieldDoc field : fieldDocs) {
 				fieldNames.add(field.name());
 
+				FieldReader fieldReader = new FieldReader(this.options);
+
 				String translatedName = this.translator.fieldName(field).value();
 
 				if (excludeField(field, translatedName)) {
@@ -469,14 +473,14 @@ public class ApiModelParser {
 
 							Type fieldType = getModelType(field.type(), nested);
 
-							String description = getFieldDescription(field, true);
-							String format = getFieldFormatValue(field, fieldType);
-							String min = getFieldMin(field, fieldType);
-							String max = getFieldMax(field, fieldType);
-							Boolean required = getFieldRequired(field);
+							String description = fieldReader.getFieldDescription(field, true);
+							String format = fieldReader.getFieldFormatValue(field, fieldType);
+							String min = fieldReader.getFieldMin(field, fieldType);
+							String max = fieldReader.getFieldMax(field, fieldType);
+							Boolean required = fieldReader.getFieldRequired(field);
 							boolean hasView = ParserHelper.hasJsonViews(field, this.options);
 
-							String defaultValue = getFieldDefaultValue(field, fieldType);
+							String defaultValue = fieldReader.getFieldDefaultValue(field, fieldType);
 
 							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
 									: null;
@@ -503,6 +507,8 @@ public class ApiModelParser {
 
 				if (checkMethodXmlAccess(xmlAccessorType, method)) {
 
+					FieldReader returnTypeReader = new FieldReader(this.options);
+
 					String translatedNameViaMethod = this.translator.methodName(method).value();
 					String rawFieldName = nameTranslator.methodName(method).value();
 					Type returnType = getModelType(method.returnType(), nested);
@@ -526,12 +532,12 @@ public class ApiModelParser {
 					boolean isFieldGetter = rawFieldName != null && method.name().startsWith("get")
 							&& (method.parameters() == null || method.parameters().length == 0);
 
-					String description = getFieldDescription(method, isFieldGetter);
-					String format = getFieldFormatValue(method, returnType);
-					String min = getFieldMin(method, returnType);
-					String max = getFieldMax(method, returnType);
-					String defaultValue = getFieldDefaultValue(method, returnType);
-					Boolean required = getFieldRequired(method);
+					String description = returnTypeReader.getFieldDescription(method, isFieldGetter);
+					String format = returnTypeReader.getFieldFormatValue(method, returnType);
+					String min = returnTypeReader.getFieldMin(method, returnType);
+					String max = returnTypeReader.getFieldMax(method, returnType);
+					String defaultValue = returnTypeReader.getFieldDefaultValue(method, returnType);
+					Boolean required = returnTypeReader.getFieldRequired(method);
 					boolean hasView = ParserHelper.hasJsonViews(method, this.options);
 
 					// process getters/setters in a way that can override the field details
@@ -724,81 +730,6 @@ public class ApiModelParser {
 
 	}
 
-	private String getFieldDescription(com.sun.javadoc.MemberDoc docItem, boolean useCommentText) {
-		// method
-		String description = ParserHelper.getTagValue(docItem, this.options.getFieldDescriptionTags(), this.options);
-		if (description == null && useCommentText) {
-			description = docItem.commentText();
-		}
-		if (description == null || description.trim().length() == 0) {
-			return null;
-		}
-
-		return this.options.replaceVars(description.trim());
-	}
-
-	private String getFieldMin(com.sun.javadoc.MemberDoc docItem, Type fieldType) {
-		// ignore annotations on fields that are not numeric
-		Collection<String> annotations = this.options.getFieldMinAnnotations();
-		if (!ParserHelper.isNumber(fieldType, this.options)) {
-			annotations = Collections.emptyList();
-		}
-
-		String val = ParserHelper.getAnnotationOrTagValue(docItem, annotations, this.options.getFieldMinTags(), this.options, new String[] { "value", "min" });
-		if (val != null && val.trim().length() > 0) {
-			return this.options.replaceVars(val.trim());
-		}
-		return null;
-	}
-
-	private String getFieldMax(com.sun.javadoc.MemberDoc docItem, Type fieldType) {
-		// ignore annotations on fields that are not numeric
-		Collection<String> annotations = this.options.getFieldMaxAnnotations();
-		if (!ParserHelper.isNumber(fieldType, this.options)) {
-			annotations = Collections.emptyList();
-		}
-
-		String val = ParserHelper.getAnnotationOrTagValue(docItem, annotations, this.options.getFieldMaxTags(), this.options, new String[] { "value", "max" });
-		if (val != null && val.trim().length() > 0) {
-			return this.options.replaceVars(val.trim());
-		}
-		return null;
-	}
-
-	private String getFieldDefaultValue(com.sun.javadoc.MemberDoc docItem, Type fieldType) {
-		String val = ParserHelper.getTagValue(docItem, this.options.getFieldDefaultTags(), this.options);
-		// if its a boolean then convert to lowercase true/false
-		if (val != null && val.trim().length() > 0) {
-			val = this.options.replaceVars(val.trim());
-		}
-		if (val != null && fieldType.simpleTypeName().equalsIgnoreCase("boolean")) {
-			val = val.toLowerCase();
-		}
-		return val == null ? null : val;
-	}
-
-	private String getFieldFormatValue(com.sun.javadoc.MemberDoc docItem, Type fieldType) {
-		String val = ParserHelper.getTagValue(docItem, this.options.getFieldFormatTags(), this.options);
-		if (val != null && val.trim().length() > 0) {
-			val = this.options.replaceVars(val.trim());
-		}
-		return val == null ? null : val;
-	}
-
-	private Boolean getFieldRequired(com.sun.javadoc.MemberDoc docItem) {
-
-		if (ParserHelper.hasAnnotation(docItem, this.options.getRequiredFieldAnnotations(), this.options)
-				|| ParserHelper.hasTag(docItem, this.options.getRequiredFieldTags())) {
-			return Boolean.TRUE;
-		}
-		if (ParserHelper.hasAnnotation(docItem, this.options.getOptionalFieldAnnotations(), this.options)
-				|| ParserHelper.hasTag(docItem, this.options.getOptionalFieldTags())) {
-			return Boolean.FALSE;
-		}
-		Boolean notSpecified = null;
-		return notSpecified;
-	}
-
 	private Map<String, Property> findReferencedElements(ClassDoc classDoc, Map<String, TypeRef> types, boolean nested) {
 
 		Map<String, Property> elements = new LinkedHashMap<String, Property>();
@@ -811,14 +742,14 @@ public class ApiModelParser {
 			ClassDoc typeClassDoc = type.asClassDoc();
 
 			// change type name based on parent view
-			OptionalName propertyTypeFormat = this.translator.typeName(type);
+			OptionalName propertyTypeFormat = this.translator.typeName(type, this.options.isUseFullModelIds());
 			if (typeRef.hasView && this.viewClasses != null) {
-				propertyTypeFormat = this.translator.typeName(type, this.viewClasses);
+				propertyTypeFormat = this.translator.typeName(type, this.options.isUseFullModelIds(), this.viewClasses);
 			}
 
 			String propertyType = propertyTypeFormat.value();
 
-            // set enum values
+			// set enum values
 			List<String> allowableValues = ParserHelper.getAllowableValues(typeClassDoc);
 			if (allowableValues != null) {
 				propertyType = "string";
@@ -830,18 +761,18 @@ public class ApiModelParser {
 			String itemsFormat = null;
 			List<String> itemsAllowableValues = null;
 			if (containerOf != null) {
-                itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
-                if (itemsAllowableValues != null) {
-                    itemsType = "string";
-                } else {
-					OptionalName oName = this.translator.typeName(containerOf);
+				itemsAllowableValues = ParserHelper.getAllowableValues(containerOf.asClassDoc());
+				if (itemsAllowableValues != null) {
+					itemsType = "string";
+				} else {
+					OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds());
 					if (ParserHelper.isPrimitive(containerOf, this.options)) {
 						itemsType = oName.value();
 						itemsFormat = oName.getFormat();
 					} else {
 						itemsRef = oName.value();
 					}
-                }
+				}
 			}
 
 			Boolean uniqueItems = null;
@@ -972,11 +903,13 @@ public class ApiModelParser {
 		}
 
 		final Type typeToCheck = type;
+		final ClassDoc[] viewClasses = this.viewClasses;
+		final String modelId = this.translator.typeName(typeToCheck, this.options.isUseFullModelIds(), viewClasses).value();
 
 		return filter(apiModels, new Predicate<Model>() {
 
 			public boolean apply(Model model) {
-				return model.getId().equals(ApiModelParser.this.translator.typeName(typeToCheck).value());
+				return model.getId().equals(modelId);
 			}
 		}).size() > 0;
 	}

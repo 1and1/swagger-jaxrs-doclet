@@ -115,6 +115,15 @@
         {
         	"path": "/collections/setofstrings",
             "operations": [
+              {
+                    "method": "GET",
+                    "nickname": "getSetOfStrings",
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+            			"type": "string"
+            		}
+               },
                {
                     "method": "POST",
                     "nickname": "setSetOfStrings",

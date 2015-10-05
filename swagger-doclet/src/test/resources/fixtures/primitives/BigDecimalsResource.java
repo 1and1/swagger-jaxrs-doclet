@@ -7,6 +7,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+/**
+ * @priority 11
+ */
 @Path("/primitives/bigdecimals")
 @SuppressWarnings("javadoc")
 public class BigDecimalsResource {

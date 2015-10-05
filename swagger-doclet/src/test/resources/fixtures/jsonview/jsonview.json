@@ -17,6 +17,22 @@
                     "produces": [
                     	"application/json"
                      ]
+                },
+                {
+                    "method": "POST",
+                    "nickname": "createPerson",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "body",
+                            "name": "person",
+                            "type": "Person-Person.SimplePersonView",
+                            "required": true
+                        }
+                     ],
+                    "produces": [
+                    	"application/json"
+                     ]
                 }
             ]
         },

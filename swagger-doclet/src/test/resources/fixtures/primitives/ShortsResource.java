@@ -5,6 +5,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+/**
+ * @priority 3
+ */
 @Path("/primitives/shorts")
 @SuppressWarnings("javadoc")
 public class ShortsResource {

@@ -23,7 +23,7 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest fork version is 1.1.0.8, the latest upstream version is 1.1.0.
+The latest fork version is 1.1.0.8, the latest upstream version is 1.1.1.
 
 Fork version 1.1.0.8:
 + fix infinite loop in swagger-doclet when using recursive @JsonSubTypes
@@ -58,7 +58,15 @@ Fork version 1.1.0.5:
 ```
 
 
-Upstream Version 1.1.0 contains the following fixes/features:
+Upstream Version 1.1.1 contains the following fixes/features:
+
++ Fix incorrect detection of sub resource methods (also improves performance) (Issue 107)
++ Support new Java 8 Date Time types (Issue 104)
++ Fix readme in relation to resourceRootPath (Issue 102)
++ Group multiple response messages with same http status together for compatibility with swagger ui/spec (Issue 97)
++ Fix performance degradation (Issue 94)
+
+The fixes in the 1.1.0 version were as follows:
 
 + Support Java 8 (Issue 83)
 + Upgrade swagger UI to 2.1.0; fixes: 
@@ -138,7 +146,7 @@ The fixes/features in the 1.0.1 version were as follows:
 + Support relative basePath w/ port (issue 20)
 + @XmlTransient or @JsonIgnore on setters can lead to invalid model fields (portion of issue 17)
 
-The latest snapshot version is 1.1.1-SNAPSHOT.
+The latest snapshot version is 1.1.2-SNAPSHOT.
 
 ## Usage
 
@@ -405,6 +413,22 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@csvParams</td><td>Defines a csv of operation parameter names that use CSV values. For swagger 1.2 this results in the allowMultiple field being set to true, however the Swagger UI does not support this at present. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td></td></tr>
 	
+	<tr><td>@implicitParam</td><td>Defines an extra parameter that should be added to a resource method. A method or class can have 0 to many of these. If placed at the class level then all methods of the resource class will have the parameter added. This could for example be used for a common security header. The format for the tag is as follows: <br>
+	<pre>
+	name|dataType|paramType|required|defaultValue|minValue|maxValue|allowableValues|allowMultiple|description
+	</pre><br>
+ The name and datatype are required. All other fields can be left empty.
+ The format for the allowableValues if present is a CSV.<br>
+ Here are some examples:<br>
+ 1. A simple header param:<br>
+ @implicitParam p1|string|header<br>
+ 2. An int query param with default min and max values that is required and has a description:<br>
+ @implicitParam p2|int|query|true|5|1|10||true|test dec<br>
+ 3. A string path param with allowable values A and B and a default value of A and a description:
+ @implicitParam p3|string|path|true|A|||A,B||test<br>
+</td><td>operations, resource class</td><td>@additionalParam,@extraParam</td></tr>
+	
+	
 	<tr><td>@paramsFormat</td><td>Defines the format for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1Format param2Name param2Format. Note that this is only used for types that do not already map to a predefined format; which primarily means string type. NOTE2: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@formats</td></tr>
 	
 	<tr><td>@paramsMinValue</td><td>Defines the minimum value for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1MinValue param2Name param2MinValue. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@paramsMinimumValue, @minValues</td></tr>
@@ -421,7 +445,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@resourceDescription</td><td>This sets the description for an operation in the resource listing e.g. the service.json file. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file.</td><td>operations, resource classes</td><td></td></tr>
 	
-	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing e.g. the service.json file. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file. NOTE this will only take effect if the swagger ui apisSorter option is "none" in the index.html of the swagger ui, this is NOT the case in the embedded swagger ui.</td><td>operations, resource classes</td><td>@resourceOrder</td></tr>
+	<tr><td>@resourcePriority</td><td>This sets a priority for ordering resources in the resource listing e.g. the service.json file. They are ordered in ascending order of priority provided the doclet option -sortResourcesByPriority is set. You should put this tag on either the resource class, if using a single resource class per api resource, or one of the operation methods of each resource, if you have endpoints from multiple resources in the same class file. NOTE this will only take effect if the swagger ui apisSorter option is "none" in the index.html of the swagger ui, this is NOT the case in the embedded swagger ui.</td><td>operations, resource classes</td><td>@resourceOrder,@priority</td></tr>
 	
 	<tr><td>@unauthorized</td><td>Indicates a method does NOT require authentication, in this case an empty authorizations field will be added to the operation json e.g. authorizations": { } The swagger 1.2 spec indicates this overrides authentication at the api level however in practice it appears that not adding this vs adding empty authorizations has the same effect in Swagger UI.</td><td>operations</td><td>@noAuth</td></tr>
 	<tr><td>@scope</td><td>Indicates this method requires authorization and in particular the calling user must have this scope. Multiple scopes can be added using multiple tags. The scopes defined on the operation level must be one of the scopes in the Authorizations section of the service.json</td><td>operations</td><td>@oauth2Scope</td></tr>
@@ -714,6 +738,8 @@ Then the variable ${userFieldNamesDesc} would be replaced by the value from the 
 	
 	<tr><td>-modelFieldsNamingConvention</td><td>This is an optional naming convention that can be used for the naming of fields of models. If not specified then the fields of models will have the same name as the java field name unless it has one of the annotations that can override the name such as @XmlAttribute, @XmlElement or @JsonProperty. There are 3 types of naming conventions that can be used instead: lower case, upper case, and lower case with underscore separating words. For each of these they can be used either always or only when there is no name customising annotation/tag (such as @XmlAttribute). The supported values for this field are: LOWER_UNDERSCORE, UPPERCASE, LOWERCASE which always take effect or their equivalents which only apply when there is not customised name for the field are: LOWER_UNDERSCORE_UNLESS_OVERRIDDEN, UPPERCASE_UNLESS_OVERRIDDEN, LOWERCASE_UNLESS_OVERRIDDEN, </td></tr>
 	
+	<tr><td>-useFullModelIds</td><td>By default the ids used for models will be the simple class name, for example a class called foo.bar.Data will have a model id of Data. If you use classes with the same name but different packages then you should enable this option.</td></tr>
+	
 	<tr><td>-serializationInclusion</td><td>By default this will be NON_NULL, but you can change this to any of the other supported values ALWAYS, NON_DEFAULT, NON_EMPTY. See com.fasterxml.jackson.annotation.JsonInclude$Include for more details.</td></tr>
 	
 	<tr><td>-defaultTyping</td><td>This is not enabled by default. You can choose to set it to one of the following values: JAVA_LANG_OBJECT, OBJECT_AND_NON_CONCRETE, NON_CONCRETE_AND_ARRAYS, NON_FINAL. See com.fasterxml.jackson.databind.ObjectMapper$DefaultTyping for futher details.</td></tr>
@@ -721,6 +747,17 @@ Then the variable ${userFieldNamesDesc} would be replaced by the value from the 
 	<tr><td>-serializationFeatures</td><td>The default value for this is INDENT_OUTPUT:true. The format of this is a CSV in the form featureName:enabledflag, feature2Name:enabledflag ... where enableflag is true or false. See com.fasterxml.jackson.databind.SerializationFeature for futher details.</td></tr>
 
 	<tr><td>-deserializationFeatures</td><td>There is no default value for this. The format of this is a CSV in the form featureName:enabledflag, feature2Name:enabledflag ... where enableflag is true or false. See com.fasterxml.jackson.databind.DeserializationFeature for futher details.</td></tr>	
+	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. and org.joda.time. which means a) that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type and that b) Joda Time date classes like DateTime and LocalDate are given a type of string.</td></tr>
+	
+	<tr><td>-responseMessageSortMode</td><td>This controls how response messages are sorted. This can be one of: 
+	<ul>
+	<li>CODE_ASC this is the default, it means in ascending order of the HTTP status code so success codes would come before error codes</li>
+	<li>CODE_DESC means in descending order of the HTTP status code so error codes would come before success codes</li>
+	<li>AS_APPEARS same order as they appear in the javadoc</li>
+	</ul>
+	</td></tr>
+	
+	<tr><td>-authOperationScopes</td><td>If an operation has "@authentication required" on it then it needs to know which scopes are required. This default set of scopes can be set via this option.</td></tr>
 	
 </table>
 
@@ -731,19 +768,9 @@ These are options that you typically won't need to use unless for example, you w
 <table>
 	<tr><th>Option</th><th>Purpose</th></tr>
 	
-	<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context</td></tr>
+	<tr><td>-excludeParamAnnotations</td><td>This adds additional annotation classes to the set of annotations used to exclude operation parameters from the documentation. The default set contains javax.ws.rs.core.Context, javax.ws.rs.CookieParam, javax.ws.rs.MatrixParam, javax.ws.rs.container.Suspended</td></tr>
 	
 	<tr><td>-responseMessageTags</td><td>This adds additional tags to the set of javadoc tags used for response messages. The default set contains responseMessage, status, errorResponse, errorCode, successResponse, successCode. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
-	
-	
-	
-	<tr><td>-responseMessageSortMode</td><td>This controls how response messages are sorted. This can be one of: 
-	<ul>
-	<li>CODE_ASC this is the default, it means in ascending order of the HTTP status code so success codes would come before error codes</li>
-	<li>CODE_DESC means in descending order of the HTTP status code so error codes would come before success codes</li>
-	<li>AS_APPEARS same order as they appear in the javadoc</li>
-	</ul>
-	</td></tr>
 	
 	<tr><td>-excludeOperationTags</td><td>This adds additional tags to the set of javadoc tags used for excluding operations. The default set contains exclude, hide, hidden. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
@@ -783,13 +810,13 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-authOperationTags</td><td>This adds additional tags to the list of javadoc tags used for the alternative way of indicating whether an operation requires or does not require auhtorization. The default list contains authentication, authorization. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
-	<tr><td>-authOperationScopes</td><td>If an operation has "@authentication required" on it then it needs to know which scopes are required. This default set of scopes can be set via this option.</td></tr>
-	
 	<tr><td>-requiredParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are required. The default list contains requiredParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-optionalParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are optional. The default list contains optionalParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-csvParamsTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether operation parameters are csv/multi valued. The default list contains csvParams. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	
+	<tr><td>-implicitParamTags</td><td>This adds additional tags to the list of javadoc tags used for adding additional resource method parameters. The default list contains implicitParam,additionalParam,extraParam. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-paramsFormatTags</td><td>This adds additional tags to the list of javadoc tags used for setting formats for operation parameters. The default list contains paramsFormat, formats. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
@@ -817,8 +844,6 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-paramsNameTags</td><td>This adds additional tags to the list of javadoc tags used for setting custom names for parameters. These supercede both the default parameter name from the method signature as well as any annotations used for the parameter name. The default list contains paramsName and overrideParamsName. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
-	<tr><td>-stringTypePrefixes</td><td>This adds additional prefixes to the list of prefixes of class types that if matched mean the data type used for a given type is always string. The default list contains com.sun.jersey.core.header. and org.joda.time. which means a) that custom jersey header classes like com.sun.jersey.core.header.FormDataContentDisposition are given the string data type and that b) Joda Time date classes like DateTime and LocalDate are given a type of string.</td></tr>
-	
 	<tr><td>-compositeParamAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to denote a parameter class as being a composite parameter class. The default list contains javax.ws.rs.BeanParam.</td></tr>
 	
 	<tr><td>-compositeParamTypes</td><td>This adds additional classes to the list of parameter type classes that are used to denote a parameter class as being a composite parameter class. The default list is empty.</td></tr>
@@ -842,6 +867,8 @@ These are options that you typically won't need to use unless for example, you w
 	<tr><td>-requiredFieldAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a model field is required. The default list contains javax.validation.constraints.NotNull.</td></tr>
 	
 	<tr><td>-optionalFieldAnnotations</td><td>This adds additional annotation classes to the list of annotations that are used to specify a model field is optional. The default list contains javax.validation.constraints.Null.</td></tr>
+	
+	<tr><td>-logDebug</td><td>This turns on debug level logging which gives more verbose output.</td></tr>
 
 </table>
 

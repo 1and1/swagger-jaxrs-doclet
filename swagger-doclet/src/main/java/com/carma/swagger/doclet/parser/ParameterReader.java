@@ -242,8 +242,9 @@ public class ParameterReader {
 						List<String> itemsAllowableValues = property.getItems() == null ? null : property.getItems().getAllowableValues();
 
 						ApiParameter param = new ApiParameter(property.getParamCategory(), renderedParamName, required, allowMultiple, property.getType(),
-								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, itemsAllowableValues, property.getUniqueItems(),
-								property.getAllowableValues(), property.getMinimum(), property.getMaximum(), property.getDefaultValue());
+								property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, itemsAllowableValues,
+								property.getUniqueItems(), property.getAllowableValues(), property.getMinimum(), property.getMaximum(),
+								property.getDefaultValue());
 
 						res.add(param);
 					}
@@ -253,13 +254,16 @@ public class ParameterReader {
 			return res;
 		}
 
+		ClassDoc[] viewClasses = ParserHelper.getInheritableJsonViews(method, parameter, this.options);
+
 		// look for a custom input type for body params
 		if ("body".equals(paramCategory)) {
 			String customParamType = ParserHelper.getInheritableTagValue(method, this.options.getInputTypeTags(), this.options);
-			paramType = readCustomParamType(customParamType, paramType, models);
+			paramType = readCustomParamType(customParamType, paramType, models, viewClasses);
 		}
 
-		OptionalName paramTypeFormat = this.translator.parameterTypeName(consumesMultipart, parameter, paramType);
+		OptionalName paramTypeFormat = this.translator
+				.parameterTypeName(consumesMultipart, parameter, paramType, this.options.isUseFullModelIds(), viewClasses);
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
 
@@ -288,7 +292,7 @@ public class ParameterReader {
 
 			if (this.options.isParseModels()) {
 				Type modelType = containerOf == null ? paramType : containerOf;
-				models.addAll(new ApiModelParser(this.options, this.translator, modelType).parse());
+				models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses).parse());
 			}
 
 			// set enum values
@@ -365,7 +369,7 @@ public class ParameterReader {
 				if (itemsAllowableValues != null) {
 					itemsType = "string";
 				} else {
-					OptionalName oName = this.translator.typeName(containerOf);
+					OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds(), viewClasses);
 					if (ParserHelper.isPrimitive(containerOf, this.options)) {
 						itemsType = oName.value();
 						itemsFormat = oName.getFormat();
@@ -400,11 +404,117 @@ public class ParameterReader {
 		return res;
 	}
 
+	/**
+	 * This reads implicit params from the javadoc of the method or class using the @implicitParam tag
+	 * @param method The method to read
+	 * @param consumesMultipart
+	 * @param models A set of models to add any custom param type to
+	 * @return A list of implicit method parameters
+	 */
+	public List<ApiParameter> readImplicitParameters(ExecutableMemberDoc method, boolean consumesMultipart, Set<Model> models) {
+		List<ApiParameter> params = new ArrayList<ApiParameter>();
+		// add on any extra parameters defined in the javadoc of the method
+		List<String> implicitParamDefs = new ArrayList<>();
+		List<String> methodImplicitParamDefs = ParserHelper.getInheritableTagValues(method, this.options.getImplicitParamTags(), this.options);
+		if (methodImplicitParamDefs != null) {
+			implicitParamDefs.addAll(methodImplicitParamDefs);
+		}
+		// and also in the class the method is on
+		List<String> classImplicitParamDefs = ParserHelper.getInheritableTagValues(method.containingClass(), this.options.getImplicitParamTags(), this.options);
+		if (classImplicitParamDefs != null) {
+			implicitParamDefs.addAll(classImplicitParamDefs);
+		}
+
+		for (String implicitParamDef : implicitParamDefs) {
+			ApiParameter param = buildImplicitApiParam(implicitParamDef, models);
+			if (param != null) {
+				params.add(param);
+			}
+		}
+		return params;
+	}
+
+	private ApiParameter buildImplicitApiParam(String implicitParamDef, Set<Model> models) {
+		// format of param def is:
+		// name|dataType|paramType|required|defaultValue|minValue|maxValue|allowableValues|allowMultiple|description
+		// name, datatype are required; other fields can be left empty
+		// allowableValues is a CSV
+		String[] parts = implicitParamDef.split("\\|");
+
+		boolean useFqn = this.options.isUseFullModelIds();
+
+		// NOTE for now we are not supporting complex types as implicit params
+		// e.g. we don't support arrays, or collections as the main use case is for implicit headers
+		// which are just strings. We may add array/collection support at a later stage if necessary
+
+		String paramName = parts[0];
+		String dataTypeFqn = parts[1];
+		String[] typeFormat = ParserHelper.typeOf(dataTypeFqn, useFqn, this.options);
+		String typeName = typeFormat[0];
+		String format = typeFormat[1];
+
+		// if its not a primitive add the model
+		if (this.options.isParseModels() && !ParserHelper.isPrimitive(typeName, this.options)) {
+			Type modelType = ParserHelper.findModel(this.allClasses, dataTypeFqn);
+			if (modelType == null) {
+				throw new IllegalStateException(
+						"Could not find the source for the parameter "
+								+ paramName
+								+ " class: "
+								+ dataTypeFqn
+								+ ". If it is not in the same project as the one you have added the doclet to, "
+								+ "for example if it is in a dependent project then you should copy the source to the doclet calling project using the maven-dependency-plugin's unpack goal,"
+								+ " and then add it to the source using the build-helper-maven-plugin's add-source goal.");
+			}
+			models.addAll(new ApiModelParser(this.options, this.translator, modelType, null).parse());
+		}
+
+		String paramCategory = parts[2];
+		Boolean required = hasValAtPos(parts, 3) ? Boolean.valueOf(parts[3].trim()) : getRequired(paramCategory, paramName, typeName, null, null);
+		String defaultVal = hasValAtPos(parts, 4) ? parts[4].trim() : null;
+		String minimum = hasValAtPos(parts, 5) ? parts[5].trim() : null;
+		String maximum = hasValAtPos(parts, 6) ? parts[6].trim() : null;
+		List<String> allowableValues = null;
+		if (hasValAtPos(parts, 7)) {
+			String[] vals = parts[7].trim().split(",");
+			allowableValues = new ArrayList<>(vals.length);
+			for (String val : vals) {
+				if (!val.trim().isEmpty()) {
+					allowableValues.add(val.trim());
+				}
+			}
+		}
+		Boolean allowMultiple = hasValAtPos(parts, 8) ? Boolean.valueOf(parts[8].trim()) : null;
+		String description = hasValAtPos(parts, 9) ? parts[9].trim() : null;
+
+		// collection fields, not supported at present
+		String itemsRef = null;
+		String itemsType = null;
+		String itemsFormat = null;
+		List<String> itemsAllowableValues = null;
+		Boolean uniqueItems = null;
+
+		// build parameter
+		ApiParameter param = new ApiParameter(paramCategory, paramName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
+				itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+
+		return param;
+	}
+
+	private boolean hasValAtPos(String[] parts, int pos) {
+		if (pos < parts.length) {
+			if (parts[pos] != null && !parts[pos].trim().isEmpty()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private ApiParameter buildClassFieldApiParam(FieldDoc field) {
 
 		Type paramType = field.type();
 
-		OptionalName paramTypeFormat = this.translator.typeName(paramType);
+		OptionalName paramTypeFormat = this.translator.typeName(paramType, this.options.isUseFullModelIds(), null);
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
 
@@ -439,7 +549,7 @@ public class ParameterReader {
 			if (itemsAllowableValues != null) {
 				itemsType = "string";
 			} else {
-				OptionalName oName = this.translator.typeName(containerOf);
+				OptionalName oName = this.translator.typeName(containerOf, this.options.isUseFullModelIds());
 				if (ParserHelper.isPrimitive(containerOf, this.options)) {
 					itemsType = oName.value();
 					itemsFormat = oName.getFormat();
@@ -501,11 +611,11 @@ public class ParameterReader {
 			required = Boolean.TRUE;
 		}
 		// if its in the required list then its required
-		else if (requiredParams.contains(paramName)) {
+		else if (requiredParams != null && requiredParams.contains(paramName)) {
 			required = Boolean.TRUE;
 		}
 		// else if its in the optional list its optional
-		else if (optionalParams.contains(paramName)) {
+		else if (optionalParams != null && optionalParams.contains(paramName)) {
 			// leave as null as this is equivalent to false but doesn't add to the json
 		}
 		// else if its a body or File param its required
@@ -535,14 +645,14 @@ public class ParameterReader {
 		return type;
 	}
 
-	private Type readCustomParamType(String customTypeName, Type defaultType, Set<Model> models) {
+	private Type readCustomParamType(String customTypeName, Type defaultType, Set<Model> models, ClassDoc[] viewClasses) {
 		if (customTypeName != null) {
 			// lookup the type from the doclet classes
 			Type customType = ParserHelper.findModel(this.allClasses, customTypeName);
 			if (customType != null) {
 				// also add this custom return type to the models
 				if (this.options.isParseModels()) {
-					models.addAll(new ApiModelParser(this.options, this.translator, customType).parse());
+					models.addAll(new ApiModelParser(this.options, this.translator, customType, viewClasses).parse());
 				}
 				return customType;
 			}

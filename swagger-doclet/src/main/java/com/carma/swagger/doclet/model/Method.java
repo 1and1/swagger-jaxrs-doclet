@@ -12,12 +12,22 @@ public class Method {
 	private List<ApiResponseMessage> responseMessages;
 	private String summary;
 	private String notes;
+
 	private String returnType;
 	private String returnTypeFormat;
+
+	private String returnTypeMinimum;
+	private String returnTypeMaximum;
+	private String returnTypeDefaultValue;
+
+	private List<String> returnTypeAllowableValues;
+	private Boolean returnTypeUniqueItems;
+
 	private String returnTypeItemsRef;
 	private String returnTypeItemsType;
 	private String returnTypeItemsFormat;
-    private List<String> returnTypeItemsAllowableValues;
+	private List<String> returnTypeItemsAllowableValues;
+
 	private String path;
 
 	private List<String> consumes;
@@ -32,8 +42,10 @@ public class Method {
 	}
 
 	public Method(HttpMethod method, String methodName, String path, List<ApiParameter> apiParameters, List<ApiResponseMessage> responseMessages,
-			String summary, String notes, String returnType, String returnTypeFormat, String returnTypeItemsRef, String returnTypeItemsType,
-			String returnTypeItemsFormat, List<String> returnTypeItemsAllowableValues, List<String> consumes, List<String> produces, OperationAuthorizations authorizations, boolean deprecated) {
+			String summary, String notes, String returnType, String returnTypeFormat, String returnTypeMinimum, String returnTypeMaximum,
+			String returnTypeDefaultValue, List<String> returnTypeAllowableValues, Boolean returnTypeUniqueItems, String returnTypeItemsRef,
+			String returnTypeItemsType, String returnTypeItemsFormat, List<String> returnTypeItemsAllowableValues, List<String> consumes,
+			List<String> produces, OperationAuthorizations authorizations, boolean deprecated) {
 		this.method = method;
 		this.methodName = methodName;
 		this.path = ParserHelper.sanitizePath(path);
@@ -41,12 +53,22 @@ public class Method {
 		this.responseMessages = responseMessages;
 		this.summary = summary;
 		this.notes = notes;
+
 		this.returnType = returnType;
 		this.returnTypeFormat = returnTypeFormat;
+
+		this.returnTypeMinimum = returnTypeMinimum;
+		this.returnTypeMaximum = returnTypeMaximum;
+		this.returnTypeDefaultValue = returnTypeDefaultValue;
+
+		this.returnTypeAllowableValues = returnTypeAllowableValues;
+		this.returnTypeUniqueItems = returnTypeUniqueItems;
+
 		this.returnTypeItemsRef = returnTypeItemsRef;
 		this.returnTypeItemsType = returnTypeItemsType;
 		this.returnTypeItemsFormat = returnTypeItemsFormat;
-        this.returnTypeItemsAllowableValues = returnTypeItemsAllowableValues;
+		this.returnTypeItemsAllowableValues = returnTypeItemsAllowableValues;
+
 		this.consumes = consumes;
 		this.produces = produces;
 		this.authorizations = authorizations;
@@ -106,6 +128,46 @@ public class Method {
 	}
 
 	/**
+	 * This gets the returnTypeMinimum
+	 * @return the returnTypeMinimum
+	 */
+	public String getReturnTypeMinimum() {
+		return this.returnTypeMinimum;
+	}
+
+	/**
+	 * This gets the returnTypeMaximum
+	 * @return the returnTypeMaximum
+	 */
+	public String getReturnTypeMaximum() {
+		return this.returnTypeMaximum;
+	}
+
+	/**
+	 * This gets the returnTypeDefaultValue
+	 * @return the returnTypeDefaultValue
+	 */
+	public String getReturnTypeDefaultValue() {
+		return this.returnTypeDefaultValue;
+	}
+
+	/**
+	 * This gets the returnTypeAllowableValues
+	 * @return the returnTypeAllowableValues
+	 */
+	public List<String> getReturnTypeAllowableValues() {
+		return this.returnTypeAllowableValues;
+	}
+
+	/**
+	 * This gets the returnTypeUniqueItems
+	 * @return the returnTypeUniqueItems
+	 */
+	public Boolean getReturnTypeUniqueItems() {
+		return this.returnTypeUniqueItems;
+	}
+
+	/**
 	 * This gets the returnTypeItemsRef
 	 * @return the returnTypeItemsRef
 	 */
@@ -133,9 +195,9 @@ public class Method {
 	 * This gets the returnTypeItemsAllowableValues
 	 * @return the returnTypeItemsAllowableValues
 	 */
-    public List<String> getReturnTypeItemsAllowableValues() {
-        return returnTypeItemsAllowableValues;
-    }
+	public List<String> getReturnTypeItemsAllowableValues() {
+		return this.returnTypeItemsAllowableValues;
+	}
 
 	public boolean isSubResource() {
 		return this.method == null;

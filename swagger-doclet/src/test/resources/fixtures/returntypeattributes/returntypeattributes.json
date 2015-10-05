@@ -1,0 +1,36 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/returntypeattributes",
+    "apis": [
+        {
+            "path": "/returntypeattributes",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getEnum",
+                    "type": "string",
+                    "enum": [
+				        "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"
+				    	],
+				    "defaultValue" : "FRIDAY"
+                }
+            ]
+        },
+        {
+            "path": "/returntypeattributes/1",
+            "operations": [
+                {
+                    "method": "GET",
+                    "nickname": "getMinMax",
+                    "type": "integer",
+                    "format" : "int32",
+                    "minimum": 5,
+                	"maximum": 15,
+                	"defaultValue" : 10
+                }
+            ]
+        }
+    ]
+}

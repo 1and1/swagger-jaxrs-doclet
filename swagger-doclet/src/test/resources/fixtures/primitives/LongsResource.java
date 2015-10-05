@@ -5,6 +5,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+/**
+ * @priority 5
+ */
 @Path("/primitives/longs")
 @SuppressWarnings("javadoc")
 public class LongsResource {

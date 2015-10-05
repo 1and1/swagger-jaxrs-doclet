@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -110,6 +111,11 @@ public class PersonResource {
 		person.setAddress(name + "-address");
 		person.setAge(35);
 		return Response.ok(person).build();
+	}
+
+	@POST
+	public void createPerson(@com.fasterxml.jackson.annotation.JsonView(SimplePersonView.class) Person person) {
+		// noop
 	}
 
 }

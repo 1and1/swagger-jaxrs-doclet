@@ -5,6 +5,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+/**
+ * @priority 7
+ */
 @Path("/primitives/doubles")
 @SuppressWarnings("javadoc")
 public class DoublesResource {

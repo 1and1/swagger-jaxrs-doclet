@@ -1,0 +1,105 @@
+{
+    "apiVersion": "0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://localhost:8080",
+    "resourcePath": "/implicitparams",
+    "apis": [
+        {
+            "path": "/implicitparams/m1",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "m1",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "header",
+                            "name": "p1",
+                            "type": "string"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/implicitparams/m2/{p3}",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "m2",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p1",
+                            "type": "string"
+                        },
+                        {
+                            "paramType": "query",
+                            "name": "p2",
+                            "type": "integer",
+                            "format": "int32",
+                            "required" : true,
+                            "minimum": 1,
+                			"maximum": 10,
+                			"defaultValue" : 5,
+                			"allowMultiple": true,
+                			"description" : "test dec"
+                        },
+                        {
+                            "paramType": "path",
+                            "name": "p3",
+                            "type": "string",
+                            "required" : true,
+                            "defaultValue" : "A",
+                            "enum": [
+						        "A",
+						        "B"
+						    	],
+						    "description" : "test"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/implicitparams/m3",
+            "operations": [
+            	{
+                    "method": "GET",
+                    "nickname": "m3",
+                    "type": "void",
+                    "parameters": [
+                        {
+                            "paramType": "query",
+                            "name": "p3",
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        {
+                            "paramType": "body",
+                            "name": "p2",
+                            "type": "Data",
+                            "required" : true
+                        },
+                        {
+                            "paramType": "header",
+                            "name": "p1",
+                            "type": "string"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Data": {
+            "id": "Data",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

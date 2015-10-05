@@ -164,7 +164,7 @@ public class ParserHelper {
 	}
 
 	/**
-	 * Resolves tha @Path for the ClassDoc supporting inheritance
+	 * Resolves the @Path for the ClassDoc supporting inheritance
 	 * @param classDoc The class to be processed
 	 * @param options Doclet options
 	 * @return The resolved path
@@ -335,11 +335,14 @@ public class ParserHelper {
 	 * boolean boolean
 	 * date string, date
 	 * dateTime string, date-time
-	 * @param javaType The java type to get the swagger type and format of
+	 * @param javaType The FQN of the java type to get the swagger type and format of
+	 * @param useFqn whether to return a name for the type based on the FQN of the type,
+	 *            for example if given a java type of com.me.Data then if useFqn is false it will return Data
+	 *            but if true will return com-me-Data
 	 * @param options The doclet options
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
-	public static String[] typeOf(String javaType, DocletOptions options) {
+	public static String[] typeOf(String javaType, boolean useFqn, DocletOptions options) {
 		String[] simpleType = primitiveTypeOf(javaType, options);
 
 		if (simpleType != null) {
@@ -353,6 +356,9 @@ public class ParserHelper {
 		} else if (javaType.equalsIgnoreCase("java.io.File")) {
 			// special handling of files, the datatype File is reserved for multipart
 			return new String[] { "JavaFile", null };
+		} else if (useFqn) {
+			String typeName = javaType.replace(".", "-");
+			return new String[] { typeName, null };
 		} else {
 
 			// support inner classes, for this we use case sensitivity
@@ -395,12 +401,15 @@ public class ParserHelper {
 	 * date string, date
 	 * dateTime string, date-time
 	 * @param type The java type to get the swagger type and format of
+	 * @param useFqn whether to return a name for the type based on the FQN of the type,
+	 *            for example if given a java type of com.me.Data then if useFqn is false it will return Data
+	 *            but if true will return com-me-Data
 	 * @param options The doclet options
 	 * @return An array with the type as the first item and the format as the 2nd.
 	 */
-	public static String[] typeOf(Type type, DocletOptions options) {
+	public static String[] typeOf(Type type, boolean useFqn, DocletOptions options) {
 		String javaType = getQualifiedTypeName(type);
-		return typeOf(javaType, options);
+		return typeOf(javaType, useFqn, options);
 	}
 
 	/**
@@ -429,8 +438,25 @@ public class ParserHelper {
 			return new String[] { "string", null };
 		} else if (javaType.toLowerCase().equals("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
 			return new String[] { "boolean", null };
-		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date")) {
+
+		} else if (javaType.equalsIgnoreCase("java.time.LocalDate")) {
+			return new String[] { "string", "date" };
+
+		} else if (javaType.equalsIgnoreCase("java.time.Year")) {
+			return new String[] { "integer", "int32" };
+
+		} else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date") || javaType.equalsIgnoreCase("java.time.LocalDateTime")
+				|| javaType.equalsIgnoreCase("java.time.OffsetDateTime") || javaType.equalsIgnoreCase("java.time.ZonedDateTime")
+				|| javaType.equalsIgnoreCase("java.time.Instant")) {
 			return new String[] { "string", "date-time" };
+
+		} else if (javaType.equalsIgnoreCase("java.time.OffsetTime") || javaType.equalsIgnoreCase("java.time.Duration")
+				|| javaType.equalsIgnoreCase("java.time.MonthDay") || javaType.equalsIgnoreCase("java.time.Period")
+				|| javaType.equalsIgnoreCase("java.time.Month") || javaType.equalsIgnoreCase("java.time.DayOfWeek")
+				|| javaType.equalsIgnoreCase("java.time.YearMonth") || javaType.equalsIgnoreCase("java.time.ZoneId")
+				|| javaType.equalsIgnoreCase("java.time.ZoneOffset")) {
+			return new String[] { "string", null };
+
 		} else if (javaType.toLowerCase().equals("uuid") || javaType.equalsIgnoreCase("java.util.UUID")) {
 			return new String[] { "string", "uuid" };
 		}
@@ -866,6 +892,53 @@ public class ParserHelper {
 	 */
 	public static ClassDoc[] getJsonViews(com.sun.javadoc.ProgramElementDoc doc, DocletOptions options) {
 		AnnotationParser p = new AnnotationParser(doc, options);
+		ClassDoc[] viewClasses = p.getAnnotationClassDocValues("com.fasterxml.jackson.annotation.JsonView", "value");
+		if (viewClasses == null) {
+			viewClasses = p.getAnnotationClassDocValues("org.codehaus.jackson.map.annotate.JsonView", "value");
+		}
+		return viewClasses;
+	}
+
+	/**
+	 * This gets the json views for the given method paramater, it supports deriving the views from an overridden method
+	 * @param methodDoc The method
+	 * @param param The parameter
+	 * @param options The doclet options
+	 * @return The json views for the given method/overridden method or null if there were none
+	 */
+	public static ClassDoc[] getInheritableJsonViews(com.sun.javadoc.ExecutableMemberDoc methodDoc, Parameter param, DocletOptions options) {
+
+		int paramIdx = -1;
+		int i = 0;
+		for (Parameter methodParam : methodDoc.parameters()) {
+			if (methodParam.name().equals(param.name())) {
+				paramIdx = i;
+				break;
+			}
+			i++;
+		}
+
+		if (paramIdx == -1) {
+			throw new IllegalArgumentException("Invalid method param: " + param + " it is not a parameter of the given method: " + methodDoc);
+		}
+
+		ClassDoc[] result = null;
+		while (result == null && methodDoc != null) {
+			result = getJsonViews(param, options);
+			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
+			param = methodDoc == null ? null : methodDoc.parameters()[paramIdx];
+		}
+		return result;
+	}
+
+	/**
+	 * This gets the json views for the given method parameter
+	 * @param param
+	 * @param options The doclet options
+	 * @return The json views for the given param or null if there were none
+	 */
+	public static ClassDoc[] getJsonViews(Parameter param, DocletOptions options) {
+		AnnotationParser p = new AnnotationParser(param, options);
 		ClassDoc[] viewClasses = p.getAnnotationClassDocValues("com.fasterxml.jackson.annotation.JsonView", "value");
 		if (viewClasses == null) {
 			viewClasses = p.getAnnotationClassDocValues("org.codehaus.jackson.map.annotate.JsonView", "value");
@@ -1507,6 +1580,31 @@ public class ParserHelper {
 	}
 
 	/**
+	 * This gets an annotation value from the given class, it supports looking at super classes
+	 * @param classDoc The class to look for the annotation
+	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @param options The doclet options
+	 * @return The value of the annotation or null if none was found
+	 */
+	public static List<String> getInheritableTagValues(ClassDoc classDoc, Collection<String> matchTags, DocletOptions options) {
+		ClassDoc currentClassDoc = classDoc;
+		while (currentClassDoc != null) {
+			List<String> values = getTagValues(currentClassDoc, matchTags, options);
+
+			if (values != null) {
+				return values;
+			}
+
+			currentClassDoc = currentClassDoc.superclass();
+			// ignore parent object class
+			if (!ParserHelper.hasAncestor(currentClassDoc)) {
+				break;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * This gets values of any of the javadoc tags that are in the given collection
 	 * @param item The javadoc item to get the tags of
 	 * @param matchTags The names of the tags to get
@@ -1549,6 +1647,31 @@ public class ParserHelper {
 			methodDoc = methodDoc instanceof MethodDoc ? ((MethodDoc) methodDoc).overriddenMethod() : null;
 		}
 		return result;
+	}
+
+	/**
+	 * This gets an annotation value from the given class, it supports looking at super classes
+	 * @param classDoc The class to look for the annotation
+	 * @param matchTags The collection of tag names of the tag to get a value of
+	 * @param options The doclet options
+	 * @return The value of the annotation or null if none was found
+	 */
+	public static String getInheritableTagValue(ClassDoc classDoc, Collection<String> matchTags, DocletOptions options) {
+		ClassDoc currentClassDoc = classDoc;
+		while (currentClassDoc != null) {
+			String value = getTagValue(currentClassDoc, matchTags, options);
+
+			if (value != null) {
+				return value;
+			}
+
+			currentClassDoc = currentClassDoc.superclass();
+			// ignore parent object class
+			if (!ParserHelper.hasAncestor(currentClassDoc)) {
+				break;
+			}
+		}
+		return null;
 	}
 
 	/**

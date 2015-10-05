@@ -3,13 +3,16 @@
     "swaggerVersion": "1.2",
     "apis": [
      	{
-            "path": "/a.{format}"
+            "path": "/a.{format}",
+            "description": "A"
         },
         {
-            "path": "/b.{format}"
+            "path": "/b.{format}",
+            "description": "B"
         },
         {
-            "path": "/c.{format}"
+            "path": "/c.{format}",
+            "description": "C"
         }
     ]
 }
