@@ -84,17 +84,15 @@ public class DocletOptions {
 				parsedOptions.apiInfo = loadModelFromJson("-apiInfoFile", option[1], ApiInfo.class);
 
 			} else if (option[0].equals("-extraApiDeclarations")) {
-				List<ApiDeclaration> extraApiDeclarations = new ArrayList<ApiDeclaration>();
+				if (parsedOptions.extraApiDeclarations == null) {
+					parsedOptions.extraApiDeclarations = new ArrayList<ApiDeclaration>();
+				}
 				String[] filePaths = option[1].split(",");
 				for (String filePath : filePaths) {
 					filePath = filePath.trim();
 					ApiDeclaration api = loadModelFromJson("-extraApiDeclarations", filePath, ApiDeclaration.class);
-					extraApiDeclarations.add(api);
+					parsedOptions.extraApiDeclarations.add(api);
 				}
-				if (!extraApiDeclarations.isEmpty()) {
-					parsedOptions.extraApiDeclarations = extraApiDeclarations;
-				}
-
 			} else if (option[0].equals("-variablesPropertiesFile")) {
 
 				File varFile = new File(option[1]);
