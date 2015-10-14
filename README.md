@@ -23,7 +23,10 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest fork version is 1.1.0.8, the latest upstream version is 1.1.1.
+The latest fork version is 1.1.1.0, the latest upstream version is 1.1.1.
+
+Fork version 1.1.1.0:
++ replace swagger-ui-2.1.0 with 2.1.8-M1 release, because model classes are not documented properly and some methods are not shown (DEVMMAIC-1157, DEVMMAIC-1195)
 
 Fork version 1.1.0.8:
 + fix infinite loop in swagger-doclet when using recursive @JsonSubTypes
