@@ -8,6 +8,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 
 public class Operation {
 
@@ -47,16 +48,16 @@ public class Operation {
 		this.format = o.format;
 		this.items = o.items;
 		this.uniqueItems = o.uniqueItems;
-		this.allowableValues = o.allowableValues;
+		this.allowableValues = o.allowableValues == null || o.allowableValues.isEmpty() ? null : Lists.newArrayList(o.allowableValues);
 		this.minimum = o.minimum;
 		this.maximum = o.maximum;
 		this.defaultValue = o.defaultValue;
-		this.parameters = o.parameters;
-		this.responseMessages = o.responseMessages;
+		this.parameters = o.parameters == null || o.parameters.isEmpty() ? null : Lists.newArrayList(o.parameters);
+		this.responseMessages = o.responseMessages == null || o.responseMessages.isEmpty() ? null : Lists.newArrayList(o.responseMessages);
 		this.summary = o.summary;
 		this.notes = o.notes;
-		this.consumes = o.consumes;
-		this.produces = o.produces;
+		this.consumes = o.consumes == null || o.consumes.isEmpty() ? null : Lists.newArrayList(o.consumes);
+		this.produces = o.produces == null || o.produces.isEmpty() ? null : Lists.newArrayList(o.produces);
 		this.authorizations = o.authorizations;
 		this.deprecated = o.deprecated;
 	}
@@ -66,22 +67,27 @@ public class Operation {
 		this.nickname = emptyToNull(method.getMethodName());
 		this.type = emptyToNull(method.getReturnType());
 		this.format = emptyToNull(method.getReturnTypeFormat());
-		if (method.getReturnTypeItemsRef() != null || method.getReturnTypeItemsType() != null) {
-			this.items = new PropertyItems(method.getReturnTypeItemsRef(), method.getReturnTypeItemsType(), method.getReturnTypeItemsFormat(),
-					method.getReturnTypeItemsAllowableValues());
 
-		}
-		this.parameters = method.getParameters().isEmpty() ? null : ImmutableList.copyOf(method.getParameters());
-		this.responseMessages = method.getResponseMessages().isEmpty() ? null : ImmutableList.copyOf(method.getResponseMessages());
+		this.parameters = method.getParameters().isEmpty() ? null : Lists.newArrayList(method.getParameters());
+		this.responseMessages = method.getResponseMessages().isEmpty() ? null : Lists.newArrayList(method.getResponseMessages());
 		this.uniqueItems = method.getReturnTypeUniqueItems();
-		this.allowableValues = method.getReturnTypeAllowableValues();
+		this.allowableValues = method.getReturnTypeAllowableValues() == null || method.getReturnTypeAllowableValues()
+				.isEmpty() ? null : Lists.newArrayList(method.getReturnTypeAllowableValues());
+
+		if (method.getReturnTypeItemsRef() != null || method.getReturnTypeItemsType() != null) {
+			this.items = new PropertyItems(method.getReturnTypeItemsRef(), method.getReturnTypeItemsType(),
+					method.getReturnTypeItemsFormat(),
+					method.getReturnTypeItemsAllowableValues() == null
+							|| method.getReturnTypeItemsAllowableValues().isEmpty() ? null : Lists.newArrayList(
+							method.getReturnTypeItemsAllowableValues()));
+		}
 		this.minimum = method.getReturnTypeMinimum();
 		this.maximum = method.getReturnTypeMaximum();
 		this.defaultValue = method.getReturnTypeDefaultValue();
 		this.summary = emptyToNull(method.getSummary());
 		this.notes = emptyToNull(method.getNotes());
-		this.consumes = method.getConsumes() == null || method.getConsumes().isEmpty() ? null : ImmutableList.copyOf(method.getConsumes());
-		this.produces = method.getProduces() == null || method.getProduces().isEmpty() ? null : ImmutableList.copyOf(method.getProduces());
+		this.consumes = method.getConsumes() == null || method.getConsumes().isEmpty() ? null : Lists.newArrayList(method.getConsumes());
+		this.produces = method.getProduces() == null || method.getProduces().isEmpty() ? null : Lists.newArrayList(method.getProduces());
 		this.authorizations = method.getAuthorizations();
 
 		if (method.isDeprecated()) {

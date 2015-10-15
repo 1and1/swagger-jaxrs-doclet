@@ -1830,8 +1830,10 @@ SwaggerClient.prototype.buildFrom1_2Spec = function (response) {
     this.apiVersion = response.apiVersion;
   }
 
-  if(response.basePath == '.' || response.basePath == '' || response.basePath.indexOf('http') == -1) {
-    response.basePath = this.url.replace("/service.json", '');
+  //PATCH: to set the base path
+  if(response.basePath == '.' || response.basePath == '' || response.basePath.indexOf('http') != 0) {
+    var re = new RegExp("\\w+\.json");
+    response.basePath = this.url.replace(re, '');
   }
 
   this.apis = {};
@@ -1844,7 +1846,6 @@ SwaggerClient.prototype.buildFrom1_2Spec = function (response) {
   var isApi = false, i, res;
   for (i = 0; i < response.apis.length; i++) {
     var api = response.apis[i];
-    response.apis[i].path = this.url.replace("service.json", response.apis[i].path);
     if (api.operations) {
       var j;
       for (j = 0; j < api.operations.length; j++) {
