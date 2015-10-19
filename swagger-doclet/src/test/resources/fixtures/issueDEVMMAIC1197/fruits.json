@@ -1,0 +1,70 @@
+{
+  "apiVersion" : "0",
+  "swaggerVersion" : "1.2",
+  "basePath" : "http://localhost:8080",
+  "resourcePath" : "/fruits",
+  "apis" : [ {
+    "path" : "/fruits",
+    "operations" : [ {
+      "method" : "GET",
+      "nickname" : "getFruitHolder",
+      "type" : "DEVMMAIC1197-FruitHoder"
+    } ]
+  } ],
+  "models" : {
+    "DEVMMAIC1197-FruitHoder" : {
+      "id" : "DEVMMAIC1197-FruitHoder",
+      "properties" : {
+        "fruit" : {
+          "type" : "DEVMMAIC1197-Fruit"
+        },
+        "fruitArray" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "DEVMMAIC1197-Fruit"
+          }
+        },
+        "fruitList" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "DEVMMAIC1197-Fruit"
+          }
+        },
+        "fruitListList" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "array"
+          }
+        },
+        "fruitListArray" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "array"
+          }
+        },
+        "fruitSet" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "DEVMMAIC1197-Fruit"
+          },
+          "uniqueItems" : true
+        },
+        "fruitCollection" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "DEVMMAIC1197-Fruit"
+          }
+        }
+      }
+    },
+    "DEVMMAIC1197-Fruit" : {
+      "id" : "DEVMMAIC1197-Fruit",
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "description" : "name"
+        }
+      }
+    }
+  }
+}
