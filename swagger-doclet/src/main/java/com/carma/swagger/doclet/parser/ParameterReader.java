@@ -288,7 +288,7 @@ public class ParameterReader {
 			paramCategory = "form";
 		} else {
 
-			Type containerOf = ParserHelper.getContainerType(paramType, null, this.allClasses);
+			Type containerOf = ParserHelper.getContainerType(paramType, null);
 
 			if (this.options.isParseModels()) {
 				Type modelType = containerOf == null ? paramType : containerOf;
@@ -529,7 +529,7 @@ public class ParameterReader {
 		String maximum = null;
 		String defaultVal = null;
 
-		Type containerOf = ParserHelper.getContainerType(paramType, null, this.allClasses);
+		Type containerOf = ParserHelper.getContainerType(paramType, null);
 
 		// set enum values
 		ClassDoc typeClassDoc = paramType.asClassDoc();

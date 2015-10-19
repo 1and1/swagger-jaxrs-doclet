@@ -161,7 +161,7 @@ public class ApiMethodParser {
 		String returnTypeItemsType = null;
 		String returnTypeItemsFormat = null;
 		List<String> returnTypeItemsAllowableValues = null;
-		Type containerOf = ParserHelper.getContainerType(returnType, null, this.classes);
+		Type containerOf = ParserHelper.getContainerType(returnType, null);
 
 		Map<String, Type> varsToTypes = new HashMap<String, Type>();
 

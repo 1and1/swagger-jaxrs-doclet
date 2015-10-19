@@ -513,10 +513,9 @@ public class ParserHelper {
 	 * @param type The raw type like Collection&lt;String&gt;
 	 * @param varsToTypes A map of variables to types for parameterized types, optional if null parameterized types
 	 *            will not be handled
-	 * @param classes set of classes
 	 * @return The container type or null if not a collection
 	 */
-	public static Type getContainerType(Type type, Map<String, Type> varsToTypes, Collection<ClassDoc> classes) {
+	public static Type getContainerType(Type type, Map<String, Type> varsToTypes) {
 		Type result = null;
 		ParameterizedType pt = type.asParameterizedType();
 		if (pt != null && (ParserHelper.isCollection(type.qualifiedTypeName()) || ParserHelper.isArray(type))) {
@@ -533,11 +532,10 @@ public class ParserHelper {
 			}
 		}
 		// if its a non parameterized array then find the array type
-		// note in java 8 we can do this directly, however for now the only solution is to look it up via the model classes
-		if (ParserHelper.isArray(type)) {
-			result = findModel(classes, type.qualifiedTypeName());
+		Type arrayType = type.getElementType();
+		if (arrayType != null) {
+			result = arrayType;
 		}
-
 		return result;
 	}
 

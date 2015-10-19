@@ -755,7 +755,7 @@ public class ApiModelParser {
 				propertyType = "string";
 			}
 
-			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, this.subTypeClasses);
+			Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes);
 			String itemsRef = null;
 			String itemsType = null;
 			String itemsFormat = null;
@@ -897,7 +897,7 @@ public class ApiModelParser {
 	private boolean alreadyStoredType(Type type, Set<Model> apiModels) {
 
 		// if a collection then the type to check is the param type
-		Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, null);
+		Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes);
 		if (containerOf != null) {
 			type = containerOf;
 		}
