@@ -8,12 +8,12 @@
     "operations" : [ {
       "method" : "GET",
       "nickname" : "getFruitHolder",
-      "type" : "DEVMMAIC1197-FruitHoder"
+      "type" : "DEVMMAIC1197-FruitHolder"
     } ]
   } ],
   "models" : {
-    "DEVMMAIC1197-FruitHoder" : {
-      "id" : "DEVMMAIC1197-FruitHoder",
+    "DEVMMAIC1197-FruitHolder" : {
+      "id" : "DEVMMAIC1197-FruitHolder",
       "properties" : {
         "fruit" : {
           "type" : "DEVMMAIC1197-Fruit"

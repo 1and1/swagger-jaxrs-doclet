@@ -7,7 +7,7 @@ import javax.ws.rs.Path;
 public class FruitResource {
 
     @GET
-    public FruitHoder getFruitHolder() {
-        return new FruitHoder();
+    public FruitHolder getFruitHolder() {
+        return new FruitHolder();
     }
 }

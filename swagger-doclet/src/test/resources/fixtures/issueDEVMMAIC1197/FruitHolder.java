@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class FruitHoder {
+public class FruitHolder {
 
     public Fruit fruit;
     public Fruit[] fruitArray;
