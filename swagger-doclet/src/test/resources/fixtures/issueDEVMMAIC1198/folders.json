@@ -4,62 +4,22 @@
   "basePath" : "http://localhost:8080",
   "resourcePath" : "/folders",
   "apis" : [ {
-    "path" : "/folders/multi/{id}",
+    "path" : "/folders/echo/{id}",
     "operations" : [ {
       "method" : "GET",
-      "nickname" : "getMulti",
-      "type" : "DEVMMAIC1198-FoldersRepresentation",
+      "nickname" : "echoId",
+      "type" : "Response",
       "parameters" : [ {
         "type" : "string",
-        "description" : "The mailbox id parameter",
+        "description" : "the mailbox id param",
         "paramType" : "path",
         "name" : "id",
-        "required" : true
-      }, {
-        "type" : "DEVMMAIC1198-Mailbox",
-        "paramType" : "body",
-        "name" : "mailbox",
         "required" : true
       } ],
-      "summary" : "Returns the mailbox folder for the given mailbox id"
-    } ]
-  }, {
-    "path" : "/folders/{id}/{number}",
-    "operations" : [ {
-      "method" : "GET",
-      "nickname" : "getId",
-      "type" : "string",
-      "parameters" : [ {
-        "type" : "string",
-        "paramType" : "path",
-        "name" : "id",
-        "required" : true
-      }, {
-        "type" : "integer",
-        "paramType" : "path",
-        "name" : "number",
-        "required" : true
-      } ]
+      "produces" : [ "text/plain" ]
     } ]
   } ],
   "models" : {
-    "DEVMMAIC1198-Mailbox" : {
-      "id" : "DEVMMAIC1198-Mailbox",
-      "properties" : {
-        "id" : {
-          "type" : "string",
-          "description" : "the mailbox id parameter"
-        }
-      }
-    },
-    "DEVMMAIC1198-FoldersRepresentation" : {
-      "id" : "DEVMMAIC1198-FoldersRepresentation",
-      "properties" : {
-        "mailbox" : {
-          "type" : "DEVMMAIC1198-Mailbox"
-        }
-      }
-    },
     "DEVMMAIC1198-MailboxName" : {
       "id" : "DEVMMAIC1198-MailboxName",
       "properties" : {
