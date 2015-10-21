@@ -1,11 +1,12 @@
 package fixtures.issueDEVMMAIC1198;
 
-import javax.ws.rs.Path;
-
-
 public class FoldersRepresentation {
 
     public Mailbox mailbox;
+
+    public FoldersRepresentation(Mailbox mailbox) {
+        this.mailbox = mailbox;
+    }
 
     public Mailbox getMailbox() {
         return mailbox;

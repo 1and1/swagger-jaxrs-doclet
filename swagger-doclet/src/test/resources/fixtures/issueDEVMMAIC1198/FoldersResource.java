@@ -7,21 +7,31 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 
 @Path("/folders")
 public class FoldersResource {
 
     /**
      * @pathType id string
-     * @param id the mailbox id param
-     * @return the mailbox id
+     * @param id the MailboxName id parameter
+     * @return the MailboxName id
      */
-    @XmlJavaTypeAdapter(type = MailboxName.class, value = MailboxNameAdapter.class)
     @Path("echo/{id}")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response echoId(@PathParam("id") MailboxName id) {
         return Response.ok(id.getId()).build();
+    }
+
+    /**
+     * Returns the folder for the given MailboxName id
+     * @param id the MailboxName id parameter
+     * @return the folder representation
+     */
+    @Path("{id}")
+    @GET
+    public FoldersRepresentation folder(@PathParam("id") MailboxName id) {
+        return new FoldersRepresentation(new Mailbox(String.valueOf(id.getId())));
     }
 }

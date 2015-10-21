@@ -11,15 +11,47 @@
       "type" : "Response",
       "parameters" : [ {
         "type" : "string",
-        "description" : "the mailbox id param",
+        "description" : "the MailboxName id parameter",
         "paramType" : "path",
         "name" : "id",
         "required" : true
       } ],
       "produces" : [ "text/plain" ]
     } ]
+  }, {
+    "path" : "/folders/{id}",
+    "operations" : [ {
+      "method" : "GET",
+      "nickname" : "folder",
+      "type" : "DEVMMAIC1198-FoldersRepresentation",
+      "parameters" : [ {
+        "type" : "DEVMMAIC1198-MailboxName",
+        "description" : "the MailboxName id parameter",
+        "paramType" : "path",
+        "name" : "id",
+        "required" : true
+      } ],
+      "summary" : "Returns the folder for the given MailboxName id"
+    } ]
   } ],
   "models" : {
+    "DEVMMAIC1198-Mailbox" : {
+      "id" : "DEVMMAIC1198-Mailbox",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "description" : "the mailbox id parameter"
+        }
+      }
+    },
+    "DEVMMAIC1198-FoldersRepresentation" : {
+      "id" : "DEVMMAIC1198-FoldersRepresentation",
+      "properties" : {
+        "mailbox" : {
+          "type" : "DEVMMAIC1198-Mailbox"
+        }
+      }
+    },
     "DEVMMAIC1198-MailboxName" : {
       "id" : "DEVMMAIC1198-MailboxName",
       "properties" : {
