@@ -223,6 +223,9 @@ public class DocletOptions {
 			} else if (option[0].equals("-paramsFormatTags")) {
 				addTagsOption(parsedOptions.paramsFormatTags, option);
 
+			} else if (option[0].equals("-paramsPathTypeTags")) {
+				addTagsOption(parsedOptions.paramsPathTypeTags, option);
+
 			} else if (option[0].equals("-paramsMinValueTags")) {
 				addTagsOption(parsedOptions.paramsMinValueTags, option);
 
@@ -390,6 +393,7 @@ public class DocletOptions {
 	private List<String> paramsDefaultValueTags;
 	private List<String> paramsAllowableValuesTags;
 	private List<String> paramsNameTags;
+	private List<String> paramsPathTypeTags;
 	private List<String> resourceTags;
 	private List<String> apiDescriptionTags;
 	private List<String> operationNotesTags;
@@ -581,6 +585,10 @@ public class DocletOptions {
 		this.paramsFormatTags = new ArrayList<String>();
 		this.paramsFormatTags.add("paramsFormat");
 		this.paramsFormatTags.add("formats");
+
+		this.paramsPathTypeTags = new ArrayList<>();
+		this.paramsPathTypeTags.add("paramsPathType");
+		this.paramsPathTypeTags.add("pathType");
 
 		this.paramsMinValueTags = new ArrayList<String>();
 		this.paramsMinValueTags.add("paramsMinValue");
@@ -892,6 +900,15 @@ public class DocletOptions {
 	 */
 	public List<String> getParamsFormatTags() {
 		return this.paramsFormatTags;
+	}
+
+	/**
+	 * Returns the paramsPathTypeTags
+	 * @return the paramsPathTypeTags
+	 * @since 1.1.1.2
+	 */
+	public List<String> getParamsPathTypeTags() {
+		return this.paramsPathTypeTags;
 	}
 
 	/**

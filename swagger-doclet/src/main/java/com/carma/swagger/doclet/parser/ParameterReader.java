@@ -183,6 +183,9 @@ public class ParameterReader {
 		// read formats
 		Map<String, String> paramFormats = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsFormatTags(), this.options);
 
+		// read path type
+		Map<String, String> pathTypes = ParserHelper.getMethodParamNameValuePairs(method, allParamNames, this.options.getParamsPathTypeTags(), this.options);
+
 		// read min and max values of params
 		Map<String, String> paramMinVals = ParserHelper.getParameterValues(method, allParamNames, this.options.getParamsMinValueTags(),
 				this.options.getParamMinValueAnnotations(), new NumericTypeFilter(this.options), this.options, new String[] { "value", "min" });
@@ -267,9 +270,14 @@ public class ParameterReader {
 		String typeName = paramTypeFormat.value();
 		String format = paramTypeFormat.getFormat();
 
-		// overide format if possible
+		// override format if possible
 		if (format == null) {
 			format = paramFormats.get(paramName);
+		}
+
+		// override path type
+		if (pathTypes.get(paramName) != null) {
+			typeName = pathTypes.get(paramName);
 		}
 
 		Boolean allowMultiple = null;
