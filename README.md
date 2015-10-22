@@ -453,7 +453,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@paramsNameValue</td><td>Defines custom names for one or more of the parameters of an operation. This uses a format of space separated name and value pairs e.g.  param1Name param1CustomName param2Name param2CustomName. NOTE: The values for the name of the parameter in this CSV must be the raw name in the method signature/bean param field not the name as derived via an annotation or javadoc tag.</td><td>operations</td><td>@overrideParamsName</td></tr>
 
-	<tr><td>@paramsPathType</td><td>Defines the path type for one or more of the parameters of an operation. Format is analog to the @paramsFormat tag</td><td>operations</td><td>@pathType</td></tr>
+	<tr><td>@paramsPathType</td><td>Defines the path type for one or more of the parameters of an operation. Format is analog to the @paramsFormat tag</td><td>operations</td><td>@pathTypes</td></tr>
 
 	<tr><td>@resourcePath</td><td>This sets the path for resources in the resource listing e.g. the service.json file. This does NOT impact the api path which is soley controlled via the @Path annotations. You should put this tag on either a) the resource class if using a single resource class per api resource, or b) one of the operation methods of each resource if you have endpoints from multiple resources in the same class file. NOTE if you have resource classes with empty paths or a path that is / then by default these classes will be give the resource path of /root, if you put @resourcePath on the class this will be used instead of /root. You can also use the doclet parameter -resourceRootPath to customize the resource path for root resources.</td><td>operations, resource classes</td><td>@resource,@parentEndpointName</td></tr>
 	
@@ -842,7 +842,7 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-paramsAllowableValuesTags</td><td>This adds additional tags to the list of javadoc tags used for setting allowable values for operation parameters. The default list contains paramsAllowableValues, allowableValues. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 
-	<tr><td>-paramsPathTypeTags</td><td>This adds additional tags to the list of javadoc tags used for setting path types for operation parameters. The default list contains paramsPathType, pathType. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	<tr><td>-paramsPathTypeTags</td><td>This adds additional tags to the list of javadoc tags used for setting path types for operation parameters. The default list contains paramsPathType, pathTypes. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 
 	<tr><td>-requiredFieldTags</td><td>This adds additional tags to the list of javadoc tags used for setting whether model fields are required. The default list contains required and requiredField. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	

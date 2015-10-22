@@ -588,7 +588,7 @@ public class DocletOptions {
 
 		this.paramsPathTypeTags = new ArrayList<>();
 		this.paramsPathTypeTags.add("paramsPathType");
-		this.paramsPathTypeTags.add("pathType");
+		this.paramsPathTypeTags.add("pathTypes");
 
 		this.paramsMinValueTags = new ArrayList<String>();
 		this.paramsMinValueTags.add("paramsMinValue");

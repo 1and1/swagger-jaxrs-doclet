@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 public class FoldersResource {
 
     /**
-     * @pathType id string
+     * @pathTypes id string
      * @param id the MailboxName id parameter
      * @return the MailboxName id
      */
