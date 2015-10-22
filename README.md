@@ -23,7 +23,7 @@ This is used as a basis for the [Carma API Reference](https://api-dev.car.ma/api
 
 1.0.x Versions require Java 6/7
 
-The latest fork version is 1.1.1.1, the latest upstream version is 1.1.1.
+The latest fork version is 1.1.1.2, the latest upstream version is 1.1.1.
 
 Fork version 1.1.1.2:
 + DEVMMAIC-1197 Array type in model not recognized.
