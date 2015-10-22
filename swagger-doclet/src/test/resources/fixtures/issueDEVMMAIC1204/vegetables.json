@@ -1,0 +1,73 @@
+{
+  "apiVersion" : "0",
+  "swaggerVersion" : "1.2",
+  "basePath" : "http://localhost:8080",
+  "resourcePath" : "/vegetables",
+  "apis" : [ {
+    "path" : "/vegetables",
+    "operations" : [ {
+      "method" : "GET",
+      "nickname" : "redirect",
+      "type" : "void",
+      "responseMessages" : [ {
+        "code" : 302,
+        "message" : "redirect"
+      }, {
+        "code" : 404,
+        "message" : "not found",
+        "responseModel" : "DEVMMAIC1204-VegetableErrorType"
+      } ]
+    } ]
+  }, {
+    "path" : "/vegetables/{name}",
+    "operations" : [ {
+      "method" : "GET",
+      "nickname" : "echo",
+      "type" : "Response",
+      "parameters" : [ {
+        "type" : "string",
+        "paramType" : "path",
+        "name" : "name",
+        "required" : true
+      } ],
+      "responseMessages" : [ {
+        "code" : 200,
+        "message" : "ok"
+      }, {
+        "code" : 404,
+        "message" : "not found",
+        "responseModel" : "DEVMMAIC1204-VegetableErrorType"
+      } ],
+      "produces" : [ "text/plain" ]
+    }, {
+      "method" : "POST",
+      "nickname" : "vegetableJson",
+      "type" : "Response",
+      "parameters" : [ {
+        "type" : "string",
+        "paramType" : "path",
+        "name" : "name",
+        "required" : true
+      } ],
+      "responseMessages" : [ {
+        "code" : 200,
+        "message" : "ok"
+      }, {
+        "code" : 404,
+        "message" : "not found",
+        "responseModel" : "DEVMMAIC1204-VegetableErrorType"
+      } ],
+      "produces" : [ "application/json" ]
+    } ]
+  } ],
+  "models" : {
+    "DEVMMAIC1204-VegetableErrorType" : {
+      "id" : "DEVMMAIC1204-VegetableErrorType",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

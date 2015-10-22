@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -146,6 +147,9 @@ public class CrossClassApiParser {
 			String defaultErrorTypeClass = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getDefaultErrorTypeTags(), this.options);
 			Type defaultErrorType = ParserHelper.findModel(this.classes, defaultErrorTypeClass);
 
+			List<String> responseMessageTags = ParserHelper.getInheritableTagValues(currentClassDoc,
+					this.options.getResponseMessageTags(), this.options);
+
 			Set<Model> classModels = new HashSet<Model>();
 			if (this.options.isParseModels() && defaultErrorType != null) {
 				classModels.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType).parse());
@@ -173,7 +177,8 @@ public class CrossClassApiParser {
 					}
 
 					ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, allClasses,
-							defaultErrorTypeClass) : new ApiMethodParser(this.options, this.parentMethod, method, allClasses, defaultErrorTypeClass);
+							defaultErrorTypeClass, responseMessageTags) : new ApiMethodParser(this.options, this.parentMethod, method, allClasses,
+							defaultErrorTypeClass, responseMessageTags);
 
 					Method parsedMethod = methodParser.parse();
 					if (parsedMethod == null) {

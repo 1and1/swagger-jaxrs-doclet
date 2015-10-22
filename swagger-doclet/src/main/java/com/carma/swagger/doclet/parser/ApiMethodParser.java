@@ -30,6 +30,7 @@ import com.carma.swagger.doclet.model.OperationAuthorizations;
 import com.carma.swagger.doclet.model.Property;
 import com.carma.swagger.doclet.translator.Translator;
 import com.carma.swagger.doclet.translator.Translator.OptionalName;
+import com.google.common.collect.Lists;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
@@ -58,6 +59,7 @@ public class ApiMethodParser {
 	private final HttpMethod httpMethod;
 	private final Collection<ClassDoc> classes;
 	private final String classDefaultErrorType;
+	private final List<String> responseMessageTags;
 	private final String methodDefaultErrorType;
 
 	/**
@@ -67,8 +69,10 @@ public class ApiMethodParser {
 	 * @param methodDoc
 	 * @param classes
 	 * @param classDefaultErrorType
+	 * @param responseMessageTags
 	 */
-	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
+	public ApiMethodParser(DocletOptions options, String parentPath, MethodDoc methodDoc, Collection<ClassDoc> classes,
+						   String classDefaultErrorType, List<String> responseMessageTags) {
 		this.options = options;
 		this.translator = options.getTranslator();
 		this.parentPath = parentPath;
@@ -77,6 +81,7 @@ public class ApiMethodParser {
 		this.httpMethod = ParserHelper.resolveMethodHttpMethod(methodDoc);
 		this.parentMethod = null;
 		this.classDefaultErrorType = classDefaultErrorType;
+		this.responseMessageTags = responseMessageTags;
 		this.methodDefaultErrorType = ParserHelper.getInheritableTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
 		this.classes = classes;
 	}
@@ -88,9 +93,11 @@ public class ApiMethodParser {
 	 * @param methodDoc
 	 * @param classes
 	 * @param classDefaultErrorType
+	 * @param responseMessageTags
 	 */
-	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes, String classDefaultErrorType) {
-		this(options, parentMethod.getPath(), methodDoc, classes, classDefaultErrorType);
+	public ApiMethodParser(DocletOptions options, Method parentMethod, MethodDoc methodDoc, Collection<ClassDoc> classes,
+						   String classDefaultErrorType, List<String> responseMessageTags) {
+		this(options, parentMethod.getPath(), methodDoc, classes, classDefaultErrorType, responseMessageTags);
 
 		this.parentPath = parentMethod.getPath();
 		this.parentMethod = parentMethod;
@@ -376,6 +383,13 @@ public class ApiMethodParser {
 		Map<Integer, Integer> codeToMessageIdx = new HashMap<Integer, Integer>();
 
 		List<String> tagValues = ParserHelper.getInheritableTagValues(this.methodDoc, this.options.getResponseMessageTags(), this.options);
+		if (this.responseMessageTags != null) {
+			if (tagValues != null) {
+				tagValues.addAll(this.responseMessageTags);
+			} else {
+				tagValues = Lists.newArrayList(this.responseMessageTags);
+			}
+		}
 		if (tagValues != null) {
 			for (String tagValue : tagValues) {
 				for (Pattern pattern : RESPONSE_MESSAGE_PATTERNS) {
